@@ -1,0 +1,14 @@
+project MySpringApp {
+
+   entity User {
+      attribute id type Long primaryKey
+      attribute username type String
+      attribute email type String
+   }
+
+   entity Tweet {
+      attribute id type Long primaryKey // shoud send in create
+      attribute content type String
+      attribute tags type String nullable // relationship | list
+   }
+}

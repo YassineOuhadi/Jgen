@@ -1,0 +1,115 @@
+project MySpringApp {
+
+   enum Roles {
+      literal ADMIN value admin
+      literal USER value user
+   }
+
+   entity User {
+      attribute id type Long primaryKey
+      attribute username type String
+      attribute email type String
+      attribute role type Roles
+   }
+
+   entity Tweet {
+      attribute id type Long primaryKey // shoud send in create
+      attribute content type String
+      attribute tags type String nullable // relationship | list
+   }
+
+   relationship OneToMany from User to Tweet
+
+   repository userRepository for User {
+
+        query findBYName {
+            type SELECT
+            parameter username is fullname // name?? is attribute aleady exist
+        }
+        query getUserByEmail { // get count ??
+            type SELECT
+            parameter email is email // email param if exist in contoller
+        }
+        query modifyUsername {
+            type UPDATE // ?
+            parameter id is id
+            parameter username is username // validate the attribute name
+        }
+   }
+
+   service userService for User {
+        repository userRepository
+        // method reference findUserByEmail
+        method getUserByEmail { // verfi that is defined in dao
+            parameter email is email
+        }
+   }
+
+   controller userController for User {
+        path /user
+        service userService // ? service > repository, test if service exist
+        route addUser {
+            path /add
+            operation POST
+            requestBody JJ { // RequestBody
+               parameter fullname is fullname
+               parameter email is email
+            }
+        }
+        route getUser {  // shoud validate that the route alrady have a service method
+            path /get
+            operation GET
+            requestParameter userId is id required // RequestParam defined in entity or defined here
+            // return
+        }
+        route getUserByEmail {
+            path /get
+            operation GET
+            requestParameter userEmail is email required // RequestParam defined in entity or defined here
+            // method getUserByEmail // optional
+        }
+        route getAllUsers {
+            path /all
+            operation GET // pagination
+        }
+        route updateUser {
+            path /update
+            operation PUT // PUT
+            requestBody KK { // RequestBody
+               parameter fullname is fullname
+               parameter email is email
+            }
+        }
+   }
+
+   // type dto
+
+   configuration {
+      // enableAutoConfiguration
+      metadata {
+         buildTool Maven
+         springVersion 3.1.6
+         group com.example
+         artifact demo
+         name demo
+         description "Demo project for Spring Boot"
+         package com.example.demo
+         packaging Jar
+         javaVersion 17
+         dependencies { 
+            SpringBootStarter
+            SpringDataJPA
+         }
+      }
+      datasource {
+        type MySQL
+        host localhost
+        port 3306
+        database mydb
+      }
+      server {
+        host localhost
+        port 9090
+      }
+   }
+}

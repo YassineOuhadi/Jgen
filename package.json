@@ -1,0 +1,227 @@
+{
+  "name": "jgen",
+  "displayName": "Visual modeling studio code",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:jgen"
+  ],
+  "files": [
+    "bin",
+    "out",
+    "src"
+  ],
+  "bin": {
+    "jgen-cli": "./bin/cli"
+  },
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "jgen",
+        "aliases": [
+          "Jgen",
+          "Jgen"
+        ],
+        "extensions": [
+          ".jgen"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "jgen",
+        "scopeName": "source.jgen",
+        "path": "./syntaxes/jgen.tmLanguage.json"
+      }
+    ],
+    "css": [
+      {
+        "path": "./styles/treeview.css",
+        "scope": "resource"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "Jgen_code",
+          "title": "Jgen code",
+          "icon": "media/Jgen-code.png"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "JGEN.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "JGEN.refreshEntry",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "JGEN.rightClickNode",
+        "title": "Right Click"
+      },
+      {
+        "key": "ctrl+R",
+        "command": "JGEN.openContextMenu",
+        "title": "Open Context Menu"
+      },
+      {
+        "command": "JGEN.openProperties",
+        "title": "Open Properties"
+      },
+      {
+        "command": "JGEN.createEcoreModel",
+        "title": "Create Ecore Model",
+        "icon": {
+          "light": "resources/light/create-ecore-model.svg",
+          "dark": "resources/dark/create-ecore-model.svg"
+        }
+      },
+      {
+        "command": "JGEN.rename",
+        "title": "Rename"
+      },
+      {
+        "command": "JGEN.delete",
+        "title": "Delete"
+      },
+      {
+        "command": "JGEN.addPackage",
+        "title": "Add Package"
+      },
+      {
+        "command": "JGEN.addClass",
+        "title": "Add Class"
+      },
+      {
+        "command": "JGEN.addDataType",
+        "title": "Add Data Type"
+      },
+      {
+        "command": "JGEN.addEnumeration",
+        "title": "Add Enumeration"
+      },
+      {
+        "command": "JGEN.addLiteral",
+        "title": "Add Literal"
+      },
+      {
+        "command": "JGEN.addAttribute",
+        "title": "Add Attribute"
+      },
+      {
+        "command": "JGEN.addReference",
+        "title": "Add Reference"
+      },
+      {
+        "command": "JGEN.addOperation",
+        "title": "Add Operation"
+      },
+      {
+        "command": "JGEN.addAnnotation",
+        "title": "Add Annotation"
+      },
+      {
+        "command": "JGEN.addParameter",
+        "title": "Add Parameter"
+      },
+      {
+        "command": "JGEN.addDetailEntry",
+        "title": "Add Detail Entry"
+      },
+      {
+        "command": "JGEN.addAssociation",
+        "title": "Add Association"
+      },
+      {
+        "command": "JGEN.addGeneralization",
+        "title": "Add Generalization"
+      },
+      {
+        "command": "JGEN.addConstraint",
+        "title": "Add Constraint"
+      }
+    ],
+    "views": {
+      "Jgen_code": [
+        {
+          "id": "exampleView",
+          "name": "exampleView"
+        }
+      ],
+      "explorer": [
+        {
+          "id": "nodeDependencies",
+          "name": "Node Dependencies"
+        }
+      ]
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "JGEN.rightClickNode",
+          "when": "editorTextFocus && nodeTreeItem "
+        }
+      ],
+      "view/title": [
+        {
+          "command": "JGEN.refreshEntry",
+          "when": "view == exampleView",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run build && yarn run lint",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "tsc -b tsconfig.json",
+    "watch2": "tsc -b tsconfig.json --watch",
+    "pretest": "yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "langium:generate": "langium generate",
+    "langium:watch": "langium generate --watch"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "chevrotain": "^10.4.1",
+    "commander": "^8.0.0",
+    "jsonc-parser": "^3.2.0",
+    "langium": "~1.0.0",
+    "vscode-languageclient": "^8.0.2",
+    "vscode-languageserver": "^8.0.2",
+    "vscode-uri": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "@vscode/test-electron": "^2.2.0",
+    "esbuild": "^0.19.5",
+    "eslint": "^8.28.0",
+    "glob": "^8.0.3",
+    "langium-cli": "~1.0.0",
+    "mocha": "^10.1.0",
+    "typescript": "^4.9.3"
+  }
+}

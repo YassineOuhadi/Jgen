@@ -1,0 +1,39 @@
+{
+    "project": {
+    "name":"MyProject",
+    "entities": [
+        {
+            "entity": {
+                "name": "Person",
+                "attributes": [
+                    {
+                        "attribute": {
+                            "name": "name",
+                            "type": "String"
+                        }
+                    },
+                    {
+                        "attribute": {
+                            "name": "age",
+                            "type": "Integer"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "entity": {
+                "name": "Tweet",
+                "attributes": [
+                    {
+                        "attribute": {
+                            "name": "content",
+                            "type": "String"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+    }
+}

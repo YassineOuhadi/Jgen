@@ -1,0 +1,12 @@
+{
+    "projectName": "Jgen",
+    "languages": [{
+        "id": "jgen",
+        "grammar": "src/language-server/jgen.langium",
+        "fileExtensions": [".jgen"],
+        "textMate": {
+            "out": "syntaxes/jgen.tmLanguage.json"
+        }
+    }],
+    "out": "src/language-server/generated"
+}

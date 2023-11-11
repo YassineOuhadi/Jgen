@@ -1,0 +1,57 @@
+{
+  "name": "jgen",
+  "scopeName": "source.jgen",
+  "fileTypes": [
+    ".jgen"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "name": "keyword.control.jgen",
+      "match": "\\b(artifact|attribute|buildTool|configuration|controller|database|datasource|dependencies|description|entity|enum|for|from|group|host|is|Jar|javaVersion|literal|metadata|method|name|nullable|operation|package|packaging|parameter|path|port|primaryKey|project|query|relationship|repository|requestBody|requestParameter|required|route|server|service|springVersion|to|type|value|War)\\b"
+    },
+    {
+      "name": "string.quoted.double.jgen",
+      "begin": "\"",
+      "end": "\""
+    },
+    {
+      "name": "string.quoted.single.jgen",
+      "begin": "'",
+      "end": "'"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.jgen",
+          "begin": "/\\*",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.jgen"
+            }
+          },
+          "end": "\\*/",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.jgen"
+            }
+          }
+        },
+        {
+          "begin": "//",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.whitespace.comment.leading.jgen"
+            }
+          },
+          "end": "(?=$)",
+          "name": "comment.line.jgen"
+        }
+      ]
+    }
+  }
+}
