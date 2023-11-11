@@ -21,7 +21,7 @@ project MySpringApp {
    relationship OneToMany from User to Tweet
 
    repository userRepository for User {
-
+        // find by username or any attribute name shoud only defined without a query
         query findBYName {
             type SELECT
             parameter username is fullname // name?? is attribute aleady exist
@@ -32,7 +32,7 @@ project MySpringApp {
         }
         query modifyUsername {
             type UPDATE // ?
-            parameter id is id
+            parameter id is id // in update or delete shoud validate if the primary key exist in parametre
             parameter username is username // validate the attribute name
         }
    }
