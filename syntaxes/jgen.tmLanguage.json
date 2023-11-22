@@ -10,7 +10,7 @@
     },
     {
       "name": "keyword.control.jgen",
-      "match": "\\b(artifact|attribute|buildTool|configuration|controller|database|datasource|dependencies|description|entity|enum|for|from|group|host|is|Jar|javaVersion|literal|metadata|method|name|nullable|operation|package|packaging|parameter|path|port|primaryKey|project|query|relationship|repository|requestBody|requestParameter|required|route|server|service|springVersion|to|type|value|War)\\b"
+      "match": "\\b(artifact|attribute|buildTool|configuration|controller|database|datasource|description|entity|enum|for|from|group|host|is|Jar|javaVersion|literal|metadata|method|name|nullable|operation|package|packaging|parameter|path|port|primaryKey|project|query|relationship|repository|requestBody|requestParameter|required|route|server|service|springVersion|to|type|value|War)\\b"
     },
     {
       "name": "string.quoted.double.jgen",

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from "fs";
+import { convertVCoreFormatToJSON } from './extension';
 export class JsonTreeDataProvider implements vscode.TreeDataProvider<JsonTreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<JsonTreeItem | undefined> = new vscode.EventEmitter<JsonTreeItem | undefined>();
   readonly onDidChangeTreeData: vscode.Event<JsonTreeItem | undefined> = this._onDidChangeTreeData.event;
@@ -37,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     // console.log(vcoreString);
     // return vcoreJson;
 
-    const json = JSON.parse(jcoreString);
+    const json = convertVCoreFormatToJSON(jcoreString);
     const treeDataProvider = new JsonTreeDataProvider(json);
 
     // Register the tree view

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { JgenNode } from "../model/models";
+import { convertVCoreFormatToJSON } from "../extension";
 
 export class VcoreTreeDataProvider
   implements vscode.TreeDataProvider<JgenNode>
@@ -15,43 +16,232 @@ export class VcoreTreeDataProvider
   getTreeItem(element: JgenNode): vscode.TreeItem {
     switch (element.type) {
 
-      // case "project":
-      //   return {
-      //     label: element.name,
-      //     collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      //     contextValue: "project",
-      //   };
+      case "enum":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "enum",
+        };
+      case "literal":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "literal",
+        };
       case "entity":
         return {
           label: element.name,
           collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
           contextValue: "entity",
         };
-      // case "EDataType":
-      //   return {
-      //     label: element.name,
-      //     collapsibleState: vscode.TreeItemCollapsibleState.None,
-      //     contextValue: "EDataType",
-      //   };
       case "attribute":
         return {
           label: element.name,
           collapsibleState: vscode.TreeItemCollapsibleState.None,
           contextValue: "attribute",
         };
-      // case "EReference":
-      //   return {
-      //     label: element.name,
-      //     collapsibleState: vscode.TreeItemCollapsibleState.None,
-      //     contextValue: "EReference",
+      case "relationship":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "relationship",
 
-      //   };
-      // case "EConstraint":
+        };
+      
+      case "from":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "from",
+        };
+      case "to":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "to",
+        };
+      case "repository":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "repository",
+
+        };
+      case "reference":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "reference",
+
+        };
+      case "query":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "query",
+        };
+      case "type": // ?
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "type",
+        };
+      case "parameter":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "parameter",
+        };
+      case "service":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "service",
+        };
+      case "method":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "method",
+        };
+      case "controller":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "controller",
+        };
+      case "route":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "route",
+        };
+      case "operation":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "operation",
+        };
+      case "requestParameter":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "requestParameter",
+        };
+      case "requestBody":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "requestBody",
+        };
+      
+      //
+
+      case "configuration":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "configuration",
+        };
+      case "metadata":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "metadata",
+        };
+      case "buildTool":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "buildTool",
+        };
+      case "springVersion":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "springVersion",
+        };
+      case "group":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "group",
+        };
+      case "artifact":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "artifact",
+        };
+      case "name": // is the project name, already exist; the fisrt node!
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "name",
+        };
+      case "description":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "description",
+        };
+      case "package":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "package",
+        };
+      case "packaging":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "packaging",
+        };
+      case "javaVersion":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "javaVersion",
+        };
+      case "datasource":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "datasource",
+        };
+      // case "type":
       //   return {
       //     label: element.name,
       //     collapsibleState: vscode.TreeItemCollapsibleState.None,
-      //     contextValue: "EConstraint",
+      //     contextValue: "type",
       //   };
+      case "host":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "host",
+        };
+      case "port":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "port",
+        };
+      case "database":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.None,
+          contextValue: "database",
+        };
+      case "server":
+        return {
+          label: element.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "server",
+        };
+      // host
+      // port
+
       default:
         return {
           label: "Unknown Element",
@@ -73,21 +263,22 @@ export class VcoreTreeDataProvider
 
     if (element) {
       return Promise.resolve(
-        this.getVcoreModel(
+        this.getJcoreModel(
           path.join(workspaceRoot, "test.model")
         )
       );
     } else {
       const packageJsonPath = path.join(workspaceRoot, "test.model");
       if (this.pathExists(packageJsonPath)) {
-        return Promise.resolve(this.getVcoreModel(packageJsonPath));
+        return Promise.resolve(this.getJcoreModel(packageJsonPath));
       } else {
         vscode.window.showInformationMessage("Workspace has no test.model");
         return Promise.resolve([]);
       }
     }
   }
-  private getVcoreModel(JcorePath: string): JgenNode[] {
+
+  private getJcoreModel(JcorePath: string): any {
     const workspaceRoot =
       vscode.workspace.workspaceFolders &&
         vscode.workspace.workspaceFolders.length > 0
@@ -96,7 +287,7 @@ export class VcoreTreeDataProvider
     if (this.pathExists(JcorePath) && workspaceRoot) {
       const jcoreString = fs.readFileSync(JcorePath, "utf8");
 
-      const vcoreJson: JgenNode[] = JSON.parse(jcoreString);
+      const vcoreJson = convertVCoreFormatToJSON(jcoreString);
 
       // const vcoreModel = this.convertJsonToModel(vcoreJson);
       console.log(jcoreString);

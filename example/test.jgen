@@ -51,7 +51,7 @@ project MySpringApp {
         route addUser {
             path /add
             operation POST
-            requestBody JJ { // RequestBody
+            requestBody { // RequestBody
                parameter fullname is fullname
                parameter email is email
             }
@@ -75,7 +75,7 @@ project MySpringApp {
         route updateUser {
             path /update
             operation PUT // PUT
-            requestBody KK { // RequestBody
+            requestBody { // RequestBody
                parameter fullname is fullname
                parameter email is email
             }
@@ -89,17 +89,17 @@ project MySpringApp {
       metadata {
          buildTool Maven
          springVersion 3.1.6
-         group com.example
-         artifact demo
-         name demo
-         description "Demo project for Spring Boot"
-         package com.example.demo
+         group com.example // not nessicry is same value like package
+         artifact demo // same value as name
+         name demo // projet name in racine
+         description "Demo project for Spring Boot" // not the user who difined
+         package com.example.demo // 
          packaging Jar
          javaVersion 17
-         dependencies { 
-            SpringBootStarter
-            SpringDataJPA
-         }
+         //dependencies { 
+          //  SpringBootStarter
+          //  SpringDataJPA
+         //}
       }
       datasource {
         type MySQL

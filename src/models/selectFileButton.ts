@@ -10,8 +10,8 @@ export class MyMenuButtonsProvider implements vscode.TreeDataProvider<MyMenuButt
         if (!element) {
             return [
                 new MyMenuButtons("Select file", vscode.TreeItemCollapsibleState.None, "mySelectFileButtonCommand"),
-                new MyMenuButtons("Create new Jcore file", vscode.TreeItemCollapsibleState.None, "myCreateFileButtonCommand"),
-                new MyMenuButtons("Import Ecore File", vscode.TreeItemCollapsibleState.None, "myImportEcoreButtonCommand")
+                new MyMenuButtons("Create new Jgen file", vscode.TreeItemCollapsibleState.None, "myCreateFileButtonCommand"),
+                // new MyMenuButtons("Import Ecore File", vscode.TreeItemCollapsibleState.None, "myImportEcoreButtonCommand")
             ];
         }
         return undefined;

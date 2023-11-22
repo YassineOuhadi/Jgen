@@ -135,7 +135,7 @@ export function isLiteral(item: unknown): item is Literal {
 
 export interface Metadata extends AstNode {
     readonly $container: Project;
-    readonly $type: 'Dependencies' | 'Metadata';
+    readonly $type: 'Metadata';
     artifact: string
     description: string
     group: QualifiedName
@@ -274,7 +274,6 @@ export function isRepository(item: unknown): item is Repository {
 export interface RequestBody extends AstNode {
     readonly $container: Route;
     readonly $type: 'RequestBody';
-    name: string
     parameters: Array<Parameter>
 }
 
@@ -342,25 +341,12 @@ export function isService(item: unknown): item is Service {
     return reflection.isInstance(item, Service);
 }
 
-export interface Dependencies extends Metadata {
-    readonly $container: Project;
-    readonly $type: 'Dependencies';
-    Type?: string
-}
-
-export const Dependencies = 'Dependencies';
-
-export function isDependencies(item: unknown): item is Dependencies {
-    return reflection.isInstance(item, Dependencies);
-}
-
 export interface JgenAstType {
     Attribute: Attribute
     Configuration: Configuration
     Controller: Controller
     Database: Database
     Datasource: Datasource
-    Dependencies: Dependencies
     Entity: Entity
     Enum: Enum
     Host: Host
@@ -386,7 +372,7 @@ export interface JgenAstType {
 export class JgenAstReflection extends AbstractAstReflection {
 
     getAllTypes(): string[] {
-        return ['Attribute', 'Configuration', 'Controller', 'Database', 'Datasource', 'Dependencies', 'Entity', 'Enum', 'Host', 'Literal', 'Metadata', 'Method', 'Operation', 'Parameter', 'Path', 'Port', 'Project', 'Query', 'Relationship', 'Repository', 'RequestBody', 'RequestParameter', 'Route', 'Server', 'Service', 'StructuralComponent'];
+        return ['Attribute', 'Configuration', 'Controller', 'Database', 'Datasource', 'Entity', 'Enum', 'Host', 'Literal', 'Metadata', 'Method', 'Operation', 'Parameter', 'Path', 'Port', 'Project', 'Query', 'Relationship', 'Repository', 'RequestBody', 'RequestParameter', 'Route', 'Server', 'Service', 'StructuralComponent'];
     }
 
     protected override computeIsSubtype(subtype: string, supertype: string): boolean {
@@ -403,9 +389,6 @@ export class JgenAstReflection extends AbstractAstReflection {
             case Metadata:
             case Server: {
                 return this.isSubtype(Configuration, supertype);
-            }
-            case Dependencies: {
-                return this.isSubtype(Metadata, supertype);
             }
             default: {
                 return false;

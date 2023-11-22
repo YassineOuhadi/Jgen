@@ -2,27 +2,19 @@
 //Please report any bug or improvement as an issues in https://github.com/othy1010/JGEN
 
 <?xml version="1.0" encoding="UTF-8"?>
-
-
 <ecore:EPackage xmi:version="2.0"
                  xmlns:xmi="http://www.omg.org/XMI"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
                  name="MySpringApp">
-
-
     <eClassifiers xsi:type="ecore:EClass" name="User">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id"/>
 <eStructuralFeatures xsi:type="ecore:EAttribute" name="username"/>
 <eStructuralFeatures xsi:type="ecore:EAttribute" name="email"/>
     </eClassifiers>
-
-    
 <eClassifiers xsi:type="ecore:EClass" name="Tweet">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id"/>
 <eStructuralFeatures xsi:type="ecore:EAttribute" name="content"/>
 <eStructuralFeatures xsi:type="ecore:EAttribute" name="tags"/>
     </eClassifiers>
-
-
     </ecore:EPackage>
