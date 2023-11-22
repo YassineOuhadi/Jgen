@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { JgenNode } from "../model/models";
-import { convertVCoreFormatToJSON } from "../extension";
+import { parseJgenJson } from "../extension";
 
 export class VcoreTreeDataProvider
   implements vscode.TreeDataProvider<JgenNode>
@@ -287,7 +287,7 @@ export class VcoreTreeDataProvider
     if (this.pathExists(JcorePath) && workspaceRoot) {
       const jcoreString = fs.readFileSync(JcorePath, "utf8");
 
-      const vcoreJson = convertVCoreFormatToJSON(jcoreString);
+      const vcoreJson = parseJgenJson(jcoreString);
 
       // const vcoreModel = this.convertJsonToModel(vcoreJson);
       console.log(jcoreString);

@@ -463,383 +463,6 @@ function startLanguageClient(context: vscode.ExtensionContext): LanguageClient {
 	return client;
 }
 
-export function convertVCoreFormatToJSON(jcoreString: string): ResultNode {
-	let i = 0;
-	const jsonResult: ResultNode = {
-		project: {
-			id: i++, // Add a unique identifier for the project
-			name: '',
-			entities: [],
-			relationships: [],
-			enums: [],
-			repositories: [],
-			services: [],
-			controllers: [],
-			configuration: {
-				id: i++,
-				metadata: {
-					id: i++,
-					buildTool: '',
-					springVersion: '',
-					group: '',
-					artifact: '',
-					name: '',
-					description: '',
-					package: '',
-					packaging: '',
-					javaVersion: 0,
-				},
-				datasource: {
-					id: i++,
-					type: '',
-					host: '',
-					port: 0,
-					database: '',
-				},
-				server: {
-					id: i++,
-					host: '',
-					port: 0,
-				},
-			},
-		}
-	};
-
-	// Parse the code string and extract relevant information
-	// You may need a more sophisticated parser based on the actual language features
-
-	// Assuming 'name' is followed by a string enclosed in double quotes
-	const projectNameMatches = jcoreString.match(/project\s+(\w+)/);
-	if (projectNameMatches) {
-		jsonResult.project.name = projectNameMatches[1];
-	}
-
-	// Extract entities
-	const entityMatches = jcoreString.match(/entity (\w+) \{([\s\S]+?)\}/g);
-	if (entityMatches) {
-		jsonResult.project.entities = entityMatches.map(match => {
-			const entityNameMatches = match.match(/entity (\w+)/);
-			const attributeNameMatches = match.match(/attribute (\w+)\s+type (\w+)/g);
-
-			if (entityNameMatches && attributeNameMatches) {
-				const entity: any = {
-					entity: {
-						id: i++,
-						name: entityNameMatches[1],
-						attributes: attributeNameMatches.map(attributeMatch => {
-							const attributeMatches = attributeMatch.match(/attribute (\w+)\s+type (\w+)/);
-							if (attributeMatches) {
-								return {
-									attribute: {
-										id: i++,
-										name: attributeMatches[1],
-										type: attributeMatches[2]
-									}
-								};
-							}
-							return null;
-						}).filter(Boolean)
-					}
-				};
-				return entity;
-			}
-			return null;
-		}).filter(Boolean);
-	}
-
-	// Extract relationships
-	const relationshipMatches = jcoreString.match(/relationship (\w+) from (\w+) to (\w+)/g);
-	if (relationshipMatches) {
-		jsonResult.project.relationships = relationshipMatches
-			.map(match => {
-				const relationshipMatches = match.match(/relationship (\w+) from (\w+) to (\w+)/);
-				if (relationshipMatches) {
-					return {
-						relationship: {
-							id: i++,
-							from: relationshipMatches[2],
-							to: relationshipMatches[3],
-							type: relationshipMatches[1]
-						}
-					};
-				}
-				return null;
-			})
-			.filter(Boolean) as { relationship: RelationshipNode }[];
-	}
-
-	// Extract enums
-	const enumMatches = jcoreString.match(/enum (\w+) \{([\s\S]+?)\}/g);
-	if (enumMatches) {
-		jsonResult.project.enums = enumMatches.map(match => {
-			const enumNameMatches = match.match(/enum (\w+)/);
-			const literalMatches = match.match(/literal (\w+) value (\w+)/g);
-
-			if (enumNameMatches && literalMatches) {
-				const enumObject: any = {
-					enum: {
-						id: i++,
-						name: enumNameMatches[1],
-						literals: literalMatches.map(literalMatch => {
-							const literalMatches = literalMatch.match(/literal (\w+) value (\w+)/);
-							if (literalMatches) {
-								return {
-									literal: {
-										id: i++,
-										name: literalMatches[1],
-										value: literalMatches[2]
-									}
-								};
-							}
-							return null;
-						}).filter(Boolean)
-					}
-				};
-				return enumObject;
-			}
-			return null;
-		}).filter(Boolean);
-	}
-
-	// Extract repositories
-	const repositoryMatches = jcoreString.match(/repository (\w+) for (\w+) \{([\s\S]*)\}/g);
-	if (repositoryMatches) {
-		jsonResult.project.repositories = repositoryMatches.map(match => {
-			const repositoryNameMatches = match.match(/repository (\w+) for (\w+)/);
-			const queryMatches = match.match(/query (\w+) \{([\s\S]+?)\}/g);
-
-			if (repositoryNameMatches && queryMatches) {
-				const repository: any = {
-					repository: {
-						id: i++,
-						name: repositoryNameMatches[1],
-						entity: repositoryNameMatches[2],
-						queries: queryMatches.map(queryMatch => {
-							const queryNameMatches = queryMatch.match(/query (\w+) \{([\s\S]+?)\}/);
-							const typeMatches = queryMatch.match(/type (\w+)/);
-							const parameterMatches = queryMatch.match(/parameter (\w+) is (\w+)/g);
-
-							if (queryNameMatches && typeMatches && parameterMatches) {
-								const query: any = {
-									query: {
-										id: i++,
-										name: queryNameMatches[1],
-										type: typeMatches[1],
-										parameters: parameterMatches.map(parameterMatch => {
-											const parameterMatches = parameterMatch.match(/parameter (\w+) is (\w+)/);
-											if (parameterMatches) {
-												return {
-													parameter: {
-														id: i++,
-														name: parameterMatches[1],
-														attribute: parameterMatches[2]
-													}
-												};
-											}
-											return null;
-										}).filter(Boolean)
-									}
-								};
-								return query;
-							}
-							return null;
-						}).filter(Boolean)
-					}
-				};
-				return repository;
-			}
-			return null;
-		}).filter(Boolean);
-	}
-
-	// Extract services
-	const serviceMatches = jcoreString.match(/service (\w+) for (\w+) \{([\s\S]*)\}/g);
-	if (serviceMatches) {
-		jsonResult.project.services = serviceMatches.map(match => {
-			const serviceNameMatches = match.match(/service (\w+) for (\w+)/);
-			const methodMatches = match.match(/method (\w+) \{([\s\S]+?)\}/g);
-			const repositoryMatches = match.match(/repository (\w+)/);
-
-			if (serviceNameMatches && methodMatches && repositoryMatches) {
-				const service: any = {
-					service: {
-						id: i++,
-						name: serviceNameMatches[1],
-						entity: serviceNameMatches[2],
-						repository: repositoryMatches[1],
-						methods: methodMatches.map(methodMatche => {
-							const methodNameMatches = methodMatche.match(/method (\w+) \{([\s\S]+?)\}/);
-							const parameterMatches = methodMatche.match(/parameter (\w+) is (\w+)/g);
-
-							if (methodNameMatches && parameterMatches) {
-								const method: any = {
-									method: {
-										id: i++,
-										name: methodNameMatches[1],
-										parameters: parameterMatches.map(parameterMatch => {
-											const parameterMatches = parameterMatch.match(/parameter (\w+) is (\w+)/);
-											if (parameterMatches) {
-												return {
-													parameter: {
-														id: i++,
-														name: parameterMatches[1],
-														attribute: parameterMatches[2]
-													}
-												};
-											}
-											return null;
-										}).filter(Boolean)
-									}
-								};
-								return method;
-							}
-							return null;
-						}).filter(Boolean)
-					}
-				};
-				return service;
-			}
-			return null;
-		}).filter(Boolean);
-	}
-
-	// Extract controllers
-	const controllerMatches = jcoreString.match(/controller (\w+) for (\w+) \{([\s\S]*)\}/g);
-	if (controllerMatches) {
-		jsonResult.project.controllers = controllerMatches.map(match => {
-			const controllerNameMatches = match.match(/controller (\w+) for (\w+)/);
-			const serviceMatches = match.match(/service (\w+)/);
-			const routeMatches = match.match(/route (\w+) \{([\s\S]+?)\}/g);
-			let pathMatches = match.match(/path (\/\w+)/);
-
-			if (controllerNameMatches && routeMatches && serviceMatches && pathMatches) {
-				const controller: any = {
-					controller: {
-						id: i++,
-						name: controllerNameMatches[1],
-						entity: controllerNameMatches[2],
-						service: serviceMatches[1],
-						path: pathMatches[1],
-						routes: routeMatches.map(routeMatche => {
-							const routeNameMatches = routeMatche.match(/route (\w+) \{([\s\S]+?)\}/);
-							// const parameterMatches = routeMatche.match(/parameter (\w+) is (\w+)/g);
-
-							pathMatches = routeMatche.match(/path (\/\w+)/);
-							const operationMatches = routeMatche.match(/operation (\w+)/);
-							const requestParameterMatches = routeMatche.match(/requestParameter (\w+) is (\w+)/g);
-							const requestBodyMatches = match.match(/requestBody \{([\s\S]+?)\}/g);
-
-							if (routeNameMatches && pathMatches && operationMatches && (requestParameterMatches || requestBodyMatches)) {
-								const route: any = {
-									route: {
-										id: i++,
-										name: routeNameMatches[1],
-										path: pathMatches[1],
-										operation: operationMatches[1],
-										requestParameters: requestParameterMatches?.map(requestParameterMatch => {
-											const requestParameterMatches = requestParameterMatch.match(/requestParameter (\w+) is (\w+)/);
-											if (requestParameterMatches) {
-												return {
-													requestParameter: {
-														id: i++,
-														name: requestParameterMatches[1],
-														attribute: requestParameterMatches[2]
-													}
-												};
-											}
-											return null;
-										}).filter(Boolean),
-
-										requestBody: routeNameMatches ? routeNameMatches.map(requestBodyMatche => {
-											const requestBodyNameMatches = requestBodyMatche.match(/requestBody \{([\s\S]+?)\}/);
-											const parameterMatches = requestBodyMatche.match(/parameter (\w+) is (\w+)/g);
-
-											if (requestBodyNameMatches && parameterMatches) {
-												const requestBody: any = {
-													id: i++,
-													// name: requestBodyNameMatches[1],
-													parameters: parameterMatches.map(parameterMatch => {
-														const parameterMatches = parameterMatch.match(/parameter (\w+) is (\w+)/);
-														if (parameterMatches) {
-															return {
-																parameter: {
-																	id: i++,
-																	name: parameterMatches[1],
-																	attribute: parameterMatches[2]
-																}
-															};
-														}
-														return null;
-													}).filter(Boolean)
-												};
-												return requestBody;
-											}
-											return null;
-										})[0] : null
-
-									}
-								};
-								return route;
-							}
-							return null;
-						}).filter(Boolean)
-					}
-				};
-				return controller;
-			}
-			return null;
-		}).filter(Boolean);
-	}
-
-	// Extract configuration
-	// Extract configuration
-	// Extract configuration
-	const serverMatches = jcoreString.match(/server \{([\s\S]+?)\}/);
-	const metadataMatches = jcoreString.match(/metadata \{([\s\S]+?)\}/);
-	const datasourceMatches = jcoreString.match(/datasource \{([\s\S]+?)\}/);
-	if (serverMatches && metadataMatches && datasourceMatches) {
-		const metadataContent = metadataMatches[0];
-		const datasourceContent = datasourceMatches[0];
-		const serverContent = serverMatches[0];
-		const resultJSON = convertDSLConfigToJSON(metadataContent + '\n' + datasourceContent + '\n' + serverContent, i++);
-		jsonResult.project.configuration = resultJSON;
-	}
-
-	return jsonResult;
-}
-
-function convertDSLConfigToJSON(dsl: string, aiValue: number): Configuration {
-	const lines = dsl.split('\n').map(line => line.trim());
-	const result: Configuration = {
-		id: aiValue, // Initialize ID to 0
-		metadata: { id: aiValue } as Metadata,
-		datasource: { id: aiValue } as Datasource,
-		server: { id: aiValue } as Server,
-	};
-
-	let currentSection: keyof Configuration = 'metadata';
-
-	lines.forEach(line => {
-		// Skip lines that are comments
-		if (line.startsWith('//')) {
-			return;
-		}
-
-		const parts = line.match(/"([^"]+)"|\S+/g) || [];
-		const key = parts[0];
-		const value = parts[1];
-
-		if (key === 'metadata' || key === 'datasource' || key === 'server') {
-			currentSection = key;
-			result[currentSection].id = result.id++; // Auto-increment ID for the section
-		} else if (key && value) {
-			(result[currentSection] as any)[key] = value.replace(/"/g, '');
-		}
-	});
-
-	return result;
-}
-
 function convertJsonToEcoreModel(selectFile: string): EcoreModel {
 	if (pathExists(selectFile!) && selectFile) {
 		let vcoreString = fs.readFileSync(selectFile, "utf8");
@@ -882,7 +505,7 @@ function convertJsonToEcoreModel(selectFile: string): EcoreModel {
 	}
 }
 
-function parseJgenJson(dsl: string): ResultNode {
+export function parseJgenJson(dsl: string): ResultNode {
     const result: ResultNode = {
         project: {
             id: 0,
@@ -1760,7 +1383,7 @@ function getChildKey(child: any) {
 function saveAddChangesToJSON(changedNode: EcoreNode) {
 	if (pathExists(file!) && file) {
 		const vcoreString = fs.readFileSync(file, "utf8");
-		let json = convertVCoreFormatToJSON(vcoreString);
+		let json = parseJgenJson(vcoreString);
 
 		//different json structure depending on the type of node
 
@@ -1792,7 +1415,7 @@ function saveAddChangesToJSON(changedNode: EcoreNode) {
 					}
 				}`;
 
-				newChild = convertVCoreFormatToJSON(newClassJSON);
+				newChild = parseJgenJson(newClassJSON);
 				addChildNode(json, newChild, changedNode);
 				break;
 			// case "relationship":
@@ -1826,7 +1449,7 @@ function saveAddChangesToJSON(changedNode: EcoreNode) {
 					}
 				}`;
 
-				newChild = convertVCoreFormatToJSON(newAttributeJSON);
+				newChild = parseJgenJson(newAttributeJSON);
 				addChildNode(json, newChild, changedNode);
 				break;
 			default:
@@ -1851,7 +1474,7 @@ function saveRenameDeleteChangesToJSON(operation: string, changedNode: EcoreNode
 		const vcoreString = fs.readFileSync(file, "utf8");
 		console.log("file content is", vcoreString);
 		console.log("changed node", changedNode);
-		let json = convertVCoreFormatToJSON(vcoreString);
+		let json = parseJgenJson(vcoreString);
 		//let json = parse(vcoreString);
 
 		//different json structure depending on the type of node
