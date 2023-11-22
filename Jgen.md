@@ -285,7 +285,7 @@ Conclusion
 Members
 -------------
 
-- Yassine Ouhadi
-- HOUSSNI Badreddine
+- [OUHADI Yassine](https://github.com/YassineOuhadi)
+- [HOUSSNI Badreddine](https://github.com/BADREDDINE1999)
 - ALAMI IBN JAMAA Hamza
 - CHARIF Mehdi
