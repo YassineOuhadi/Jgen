@@ -96,10 +96,10 @@ project MySpringApp {
          package com.example.demo // 
          packaging Jar
          javaVersion 17
-         dependencies { 
-            SpringBootStarter
-            SpringDataJPA
-         }
+         //dependencies { 
+          //  SpringBootStarter
+          //  SpringDataJPA
+         //}
       }
       datasource {
         type MySQL

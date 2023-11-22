@@ -1,115 +1,97 @@
-project MySpringApp {
+project Demo :
 
-   enum Roles {
+   enum Roles :
       literal ADMIN value admin
       literal USER value user
-   }
 
-   entity User {
+   entity User :
       attribute id type Long primaryKey
       attribute username type String
       attribute email type String
       attribute role type Roles
-   }
 
-   entity Tweet {
-      attribute id type Long primaryKey // shoud send in create
+   entity Tweet :
+      attribute id type Long primaryKey
       attribute content type String
-      attribute tags type String nullable // relationship | list
-   }
+      attribute tags type String nullable
 
    relationship OneToMany from User to Tweet
 
-   repository userRepository for User {
-        // find by username or any attribute name shoud only defined without a query
-        query findBYName {
+   repository userRepository for User :
+        query findBYName :
             type SELECT
-            parameter username is fullname // name?? is attribute aleady exist
-        }
-        query getUserByEmail { // get count ??
+            parameter username is fullname
+        
+        query getUserByEmail :
             type SELECT
-            parameter email is email // email param if exist in contoller
-        }
-        query modifyUsername {
-            type UPDATE // ?
-            parameter id is id // in update or delete shoud validate if the primary key exist in parametre
-            parameter username is username // validate the attribute name
-        }
-   }
-
-   service userService for User {
-        repository userRepository
-        // method reference findUserByEmail
-        method getUserByEmail { // verfi that is defined in dao
             parameter email is email
-        }
-   }
+        
+        query modifyUsername :
+            type UPDATE
+            parameter id is id
+            parameter username is username
 
-   controller userController for User {
+   service userService for User :
+        repository userRepository
+        method getUserByEmail :
+            parameter email is email
+
+   controller userController for User :
         path /user
-        service userService // ? service > repository, test if service exist
-        route addUser {
+        service userService
+        route addUser :
             path /add
             operation POST
-            requestBody { // RequestBody
+            requestBody :
                parameter fullname is fullname
                parameter email is email
-            }
-        }
-        route getUser {  // shoud validate that the route alrady have a service method
+
+        route getUser :
             path /get
             operation GET
-            requestParameter userId is id required // RequestParam defined in entity or defined here
-            // return
-        }
-        route getUserByEmail {
+            requestParameter userId is id required
+        
+        route getUserByEmail :
             path /get
             operation GET
-            requestParameter userEmail is email required // RequestParam defined in entity or defined here
-            // method getUserByEmail // optional
-        }
-        route getAllUsers {
+            requestParameter userEmail is email required
+        
+        route getAllUsers :
             path /all
-            operation GET // pagination
-        }
-        route updateUser {
+            operation GET
+        
+        route updateUser :
             path /update
-            operation PUT // PUT
-            requestBody { // RequestBody
+            operation PUT
+            requestBody :
                parameter fullname is fullname
                parameter email is email
-            }
-        }
-   }
+            
+        route updateUser :
+            path /update
+            operation PUT
+            requestParameter fullname is email required
+            requestParameter email is email required
 
-   // type dto
-
-   configuration {
-      // enableAutoConfiguration
-      metadata {
+    configuration :
+      metadata :
          buildTool Maven
          springVersion 3.1.6
-         group com.example // not nessicry is same value like package
-         artifact demo // same value as name
-         name demo // projet name in racine
-         description "Demo project for Spring Boot" // not the user who difined
-         package com.example.demo // 
+         group com.example
+         artifact demo
+         name demo
+         description "Demo project for Spring Boot"
+         package com.example.demo
          packaging Jar
          javaVersion 17
-         //dependencies { 
-          //  SpringBootStarter
-          //  SpringDataJPA
-         //}
-      }
-      datasource {
+      
+      datasource :
         type MySQL
         host localhost
         port 3306
         database mydb
-      }
-      server {
+      
+      server :
         host localhost
         port 9090
-      }
-   }
-}
+		

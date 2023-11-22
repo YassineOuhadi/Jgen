@@ -154,12 +154,12 @@
 grammar Jgen
 
 entry Project:
-    'project' name=ID ':'
+    'project' name=ID
     (structuralComponents+=StructuralComponent )*
     configuration=Configuration ;
 
 Entity:
-    'entity' name=ID ':'
+    'entity' name=ID
     (attributes+=Attribute)+;
 
 Attribute:
@@ -169,22 +169,22 @@ StructuralComponent:
     Enum | Entity | Relationship | Repository | Controller | Service;
 
 Repository:
-    'repository' name=ID 'for' entity=[Entity:ID] ':'
+    'repository' name=ID 'for' entity=[Entity:ID]
     (queries+=Query)*;
 
 Service:
-    'service' name=ID 'for' entity=[Entity:ID] ':' 
+    'service' name=ID 'for' entity=[Entity:ID] 
         'repository' repository=[Repository:ID] &
         (methods+=Method)+;
 
 Controller:
-    'controller' name=ID 'for' entity=[Entity:ID] ':' 
+    'controller' name=ID 'for' entity=[Entity:ID]
         'path' name=PATH &
         'service' service=[Service:ID] &
         (routes+=Route)+;
 
 Route:
-    'route' name=ID ':'
+    'route' name=ID
         path=Path
         operation=Operation
         (requestBody=RequestBody | (requestParameters+=RequestParameter)*);
@@ -195,7 +195,7 @@ Parameter:
 RequestParameter:
     'requestParameter' name=ID 'is' attribute=ID (required?='required')?;
 RequestBody:
-    'requestBody' ':'
+    'requestBody'
     (parameters+=Parameter)+;
 
 Path:
@@ -208,35 +208,35 @@ Relationship:
     'relationship' type=RELATIONSHIP 'from' from=[Entity:ID] 'to' to=[Entity:ID];
 
 Method:
-    'method' name=ID (':'
+    'method' name=ID (
     (parameters+=Parameter)*)?;
 
 Query:
-    'query' name=ID (':'
+    'query' name=ID (
     ('type' type=QUERY_TYPE)?
     (parameters+=Parameter)*)?;
 
 Enum:
-    'enum' name=ID ':'
+    'enum' name=ID
     (literals+=Literal)+;
 
 Literal:
     'literal' name=ID ('value' value=ID)?;
     
 Configuration:
-    'configuration' ':' 
+    'configuration'
         Metadata &
         Datasource &
         Server;
 
 Datasource:
-    'datasource' ':' 'type' type=DATABASE_TYPE 
+    'datasource' 'type' type=DATABASE_TYPE 
         host=Host 
         port=Port 
         database=Database;
 
 Server:
-    'server' ':' host=Host port=Port;
+    'server' host=Host port=Port;
 
 Host:
     'host' name=ID;
@@ -248,7 +248,7 @@ Database:
     'database' name=ID;
 
 Metadata:
-    'metadata' ':' 
+    'metadata'
         'buildTool' tool=BUILDTOOL &
         'springVersion' springVersion=('3.2.0' | '3.1.6' | '3.1.5' | '3.0.13' | '3.0.12' | '2.7.18' | '2.7.17') &
         'group' group=QualifiedName &

@@ -35,10 +35,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             }
           },
           {
-            "$type": "Keyword",
-            "value": ":"
-          },
-          {
             "$type": "Assignment",
             "feature": "structuralComponents",
             "operator": "+=",
@@ -92,10 +88,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               "arguments": []
             }
-          },
-          {
-            "$type": "Keyword",
-            "value": ":"
           },
           {
             "$type": "Assignment",
@@ -306,10 +298,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             }
           },
           {
-            "$type": "Keyword",
-            "value": ":"
-          },
-          {
             "$type": "Assignment",
             "feature": "queries",
             "operator": "+=",
@@ -378,10 +366,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                   },
                   "deprecatedSyntax": false
                 }
-              },
-              {
-                "$type": "Keyword",
-                "value": ":"
               },
               {
                 "$type": "Keyword",
@@ -480,10 +464,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               {
                 "$type": "Keyword",
-                "value": ":"
-              },
-              {
-                "$type": "Keyword",
                 "value": "path"
               },
               {
@@ -571,10 +551,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               "arguments": []
             }
-          },
-          {
-            "$type": "Keyword",
-            "value": ":"
           },
           {
             "$type": "Assignment",
@@ -764,10 +740,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "value": "requestBody"
           },
           {
-            "$type": "Keyword",
-            "value": ":"
-          },
-          {
             "$type": "Assignment",
             "feature": "parameters",
             "operator": "+=",
@@ -951,26 +923,16 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             }
           },
           {
-            "$type": "Group",
-            "elements": [
-              {
-                "$type": "Keyword",
-                "value": ":"
+            "$type": "Assignment",
+            "feature": "parameters",
+            "operator": "+=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@8"
               },
-              {
-                "$type": "Assignment",
-                "feature": "parameters",
-                "operator": "+=",
-                "terminal": {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@8"
-                  },
-                  "arguments": []
-                },
-                "cardinality": "*"
-              }
-            ],
+              "arguments": []
+            },
             "cardinality": "?"
           }
         ]
@@ -1007,10 +969,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           {
             "$type": "Group",
             "elements": [
-              {
-                "$type": "Keyword",
-                "value": ":"
-              },
               {
                 "$type": "Group",
                 "elements": [
@@ -1079,10 +1037,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               "arguments": []
             }
-          },
-          {
-            "$type": "Keyword",
-            "value": ":"
           },
           {
             "$type": "Assignment",
@@ -1173,10 +1127,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "value": "configuration"
               },
               {
-                "$type": "Keyword",
-                "value": ":"
-              },
-              {
                 "$type": "RuleCall",
                 "rule": {
                   "$ref": "#/rules@24"
@@ -1217,10 +1167,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           {
             "$type": "Keyword",
             "value": "datasource"
-          },
-          {
-            "$type": "Keyword",
-            "value": ":"
           },
           {
             "$type": "Keyword",
@@ -1292,10 +1238,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           {
             "$type": "Keyword",
             "value": "server"
-          },
-          {
-            "$type": "Keyword",
-            "value": ":"
           },
           {
             "$type": "Assignment",
@@ -1435,10 +1377,6 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               {
                 "$type": "Keyword",
                 "value": "metadata"
-              },
-              {
-                "$type": "Keyword",
-                "value": ":"
               },
               {
                 "$type": "Keyword",

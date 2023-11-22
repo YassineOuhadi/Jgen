@@ -3,9 +3,7 @@ import * as fs from "fs";
 import { EcoreTreeDataProvider, EcoreModel, EcoreNode } from "./treeview";
 import * as path from "path";
 import { MyMenuButtonsProvider } from './models/selectFileButton';
-import {
-	LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, integer
-} from 'vscode-languageclient/node';
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
 //import { parse } from 'jsonc-parser';
 import { Attribute, Entity, Project } from './language-server/generated/ast';
 
@@ -15,7 +13,7 @@ let model: EcoreModel;
 let ecoreTreeDataProvider: EcoreTreeDataProvider;
 let treeView: vscode.TreeView<EcoreNode>;
 
-interface ResultNode {
+interface JgenNode {
 	project: ProjectNode;
 }
 
@@ -28,7 +26,7 @@ interface ProjectNode {
 	repositories: { repository: RepositoryNode }[];
 	services: { service: ServiceNode }[];
 	controllers: { controller: ControllerNode }[];
-	configuration: Configuration;
+	configuration: ConfigurationNode;
 }
 
 interface EntityNode {
@@ -55,33 +53,33 @@ interface AttributeNode {
 interface EnumNode {
 	id: number;
 	name: string;
-	literals: { literal: EnumLiteral }[];
+	literals: { literal: EnumLiteralNode }[];
 }
 
-interface EnumLiteral {
+interface EnumLiteralNode {
 	id: number;
 	name: string;
 	value: string;
 }
 
-interface QueryParameter {
+interface QueryParameterNode {
 	id: number;
 	name: string;
 	attribute: string;
 }
 
-interface Query {
+interface QueryNode {
 	id: number;
 	name: string;
 	type: string;
-	parameters: { parameter: QueryParameter }[];
+	parameters: { parameter: QueryParameterNode }[];
 }
 
 interface RepositoryNode {
 	id: number;
 	name: string;
 	entity: string;
-	queries: { query: Query }[];
+	queries: { query: QueryNode }[];
 }
 
 interface ServiceNode {
@@ -89,13 +87,13 @@ interface ServiceNode {
 	name: string;
 	entity: string;
 	repository: string;
-	methods: { method: Method }[];
+	methods: { method: MethodNode }[];
 }
 
-interface Method {
+interface MethodNode {
 	id: number;
 	name: string;
-	parameters: { parameter: QueryParameter }[];
+	parameters: { parameter: QueryParameterNode }[];
 }
 
 interface ControllerNode {
@@ -104,39 +102,39 @@ interface ControllerNode {
 	path: string;
 	entity: string;
 	service: string;
-	routes: { route: Route }[];
+	routes: { route: RouteNode }[];
 }
 
-interface Route {
+interface RouteNode {
 	id: number;
 	name: string;
 	path: string;
 	operation: string;
-	requestParameters?: { requestParameter: RequestParameter }[];
-	requestBody?: RequestBody | null;
+	requestParameters?: { requestParameter: RequestParameterNode }[];
+	requestBody?: RequestBodyNode | null;
 }
 
-interface RequestParameter {
+interface RequestParameterNode {
 	id: number;
 	name: string;
 	attribute: string;
 	isRequired: boolean;
 }
 
-interface RequestBody {
+interface RequestBodyNode {
 	id: number;
 	// name: string;
-	parameters: { parameter: QueryParameter }[];
+	parameters: { parameter: QueryParameterNode }[];
 }
 
-interface Configuration {
+interface ConfigurationNode {
 	id: number;
-	metadata: Metadata;
-	datasource: Datasource;
-	server: Server;
+	metadata: MetadataNode;
+	datasource: DatasourceNode;
+	server: ServerNode;
 }
 
-interface Metadata {
+interface MetadataNode {
 	id: number;
 	buildTool: string;
 	springVersion: string;
@@ -149,7 +147,7 @@ interface Metadata {
 	javaVersion: number;
 }
 
-interface Datasource {
+interface DatasourceNode {
 	id: number;
 	type: string;
 	host: string;
@@ -157,7 +155,7 @@ interface Datasource {
 	database: string;
 }
 
-interface Server {
+interface ServerNode {
 	id: number;
 	host: string;
 	port: number;
@@ -249,7 +247,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						let filePath = path.join(folderPath, `${fileName}.jgen`);
 
 						// Create the new file with initial content
-						fs.writeFileSync(filePath, convertJSONToVCoreFormat(initializrJgenFile(fileName)));
+						fs.writeFileSync(filePath, parseJSONToJgenFormat(initializrJgenFile(fileName)));
 
 						// Open the newly created file in VS Code
 						vscode.workspace.openTextDocument(filePath).then(doc => {
@@ -380,11 +378,11 @@ export function deactivate(): Thenable<void> | undefined {
 	return undefined;
 }
 
-function initializrJgenFile(project: string) : ResultNode {
+function initializrJgenFile(project: string): JgenNode {
 	let i = 0;
-	const jsonResult: ResultNode = {
+	const jsonResult: JgenNode = {
 		project: {
-			id: i++, // Add a unique identifier for the project
+			id: i++,
 			name: project,
 			entities: [],
 			relationships: [],
@@ -505,352 +503,352 @@ function convertJsonToEcoreModel(selectFile: string): EcoreModel {
 	}
 }
 
-export function parseJgenJson(dsl: string): ResultNode {
-    const result: ResultNode = {
-        project: {
-            id: 0,
-            name: '',
-            entities: [],
-            relationships: [],
-            enums: [],
-            repositories: [],
-            services: [],
-            controllers: [],
-            configuration: {
-                id: 0,
-                metadata: {
-                    id: 0,
-                    buildTool: '',
-                    springVersion: '',
-                    group: '',
-                    artifact: '',
-                    name: '',
-                    description: '',
-                    package: '',
-                    packaging: '',
-                    javaVersion: 0,
-                },
-                datasource: {
-                    id: 0,
-                    type: '',
-                    host: '',
-                    port: 0,
-                    database: '',
-                },
-                server: {
-                    id: 0,
-                    host: '',
-                    port: 0,
-                },
-            },
-        },
-    };
+export function parseJgenJson(dsl: string): JgenNode {
+	const result: JgenNode = {
+		project: {
+			id: 0,
+			name: '',
+			entities: [],
+			relationships: [],
+			enums: [],
+			repositories: [],
+			services: [],
+			controllers: [],
+			configuration: {
+				id: 0,
+				metadata: {
+					id: 0,
+					buildTool: '',
+					springVersion: '',
+					group: '',
+					artifact: '',
+					name: '',
+					description: '',
+					package: '',
+					packaging: '',
+					javaVersion: 0,
+				},
+				datasource: {
+					id: 0,
+					type: '',
+					host: '',
+					port: 0,
+					database: '',
+				},
+				server: {
+					id: 0,
+					host: '',
+					port: 0,
+				},
+			},
+		},
+	};
 
-    const lines = dsl.split('\n').map((line) => line.trim());
+	const lines = dsl.split('\n').map((line) => line.trim());
 
-    let currentEntity: EntityNode | null = null;
-    let currentEnum: EnumNode | null = null;
-    let currentRepository: RepositoryNode | null = null;
-    let currentService: ServiceNode | null = null;
-    let currentController: ControllerNode | null = null;
+	let currentEntity: EntityNode | null = null;
+	let currentEnum: EnumNode | null = null;
+	let currentRepository: RepositoryNode | null = null;
+	let currentService: ServiceNode | null = null;
+	let currentController: ControllerNode | null = null;
 
-    let currentQuery: Query | null = null;
-    let currentMethod: Method | null = null;
-    let currentRoute: Route | null = null;
+	let currentQuery: QueryNode | null = null;
+	let currentMethod: MethodNode | null = null;
+	let currentRoute: RouteNode | null = null;
 
-    let currentId = 1;
-    let isExternalRepositoryAppel = true;
-    let isExternalServiceAppel = true;
-    // let isExternalControllerAppel = true;
-    let isQueryTypeAppel = true;
-    let isControllerPathAppel = true;
-    let isConfigServerAppel = true;
+	let currentId = 1;
+	let isExternalRepositoryAppel = true;
+	let isExternalServiceAppel = true;
+	// let isExternalControllerAppel = true;
+	let isQueryTypeAppel = true;
+	let isControllerPathAppel = true;
+	let isConfigServerAppel = true;
 
-    for (const line of lines) {
+	for (const line of lines) {
 
-        if(isExternalServiceAppel && line.startsWith('service')) {
-            isExternalRepositoryAppel = false;
-        } else if(line.startsWith('entity') 
-                 // || line.startsWith('repository')
-                  || line.startsWith('enum')
-                  || line.startsWith('relationship') 
-                  || line.startsWith('controller') 
-                  || line.startsWith('configuration')) {
-            isExternalRepositoryAppel = true; // not in service
-        };
+		if (isExternalServiceAppel && line.startsWith('service')) {
+			isExternalRepositoryAppel = false;
+		} else if (line.startsWith('entity')
+			// || line.startsWith('repository')
+			|| line.startsWith('enum')
+			|| line.startsWith('relationship')
+			|| line.startsWith('controller')
+			|| line.startsWith('configuration')) {
+			isExternalRepositoryAppel = true; // not in service
+		};
 
-        if(line.startsWith('controller')) {
-            isExternalServiceAppel = false;
-        } else if(line.startsWith('entity') 
-                  || line.startsWith('enum')
-                  || line.startsWith('relationship') 
-                  || line.startsWith('repository') 
-               //   || line.startsWith('service') 
-                  || line.startsWith('configuration')) {
-            isExternalServiceAppel = true; // not in controller
-        };
+		if (line.startsWith('controller')) {
+			isExternalServiceAppel = false;
+		} else if (line.startsWith('entity')
+			|| line.startsWith('enum')
+			|| line.startsWith('relationship')
+			|| line.startsWith('repository')
+			//   || line.startsWith('service') 
+			|| line.startsWith('configuration')) {
+			isExternalServiceAppel = true; // not in controller
+		};
 
-        if(line.startsWith('query')) {
-            isQueryTypeAppel = true;
-        } else if(line.startsWith('configuration')) {
-            isQueryTypeAppel = false;
-        };
+		if (line.startsWith('query')) {
+			isQueryTypeAppel = true;
+		} else if (line.startsWith('configuration')) {
+			isQueryTypeAppel = false;
+		};
 
-        if(line.startsWith('controller')) {
-            isControllerPathAppel = true;
-        } else if(line.startsWith('route')) {
-            isControllerPathAppel = false;
-        };
+		if (line.startsWith('controller')) {
+			isControllerPathAppel = true;
+		} else if (line.startsWith('route')) {
+			isControllerPathAppel = false;
+		};
 
-        if(line.startsWith('datasource')) {
-            isConfigServerAppel = false;
-        } else if(line.startsWith('server')) {
-            isConfigServerAppel = true;
-        };
-            
-        if (line.startsWith('project')) {
-            result.project.name = line.split('project ')[1].replace(":","").trim();
-        } else if (line.startsWith('enum')) {
-            currentEnum = {
-                id: currentId++,
-                name: line.split('enum ')[1].replace(":","").trim(),
-                literals: [],
-            };
-            result.project.enums.push({ enum: currentEnum });
-        } else if (line.startsWith('literal')) {
-            if (currentEnum) {
-                const literalParts = line.split('literal ')[1].trim().split(' ');
-                const literal: EnumLiteral = {
-                    id: currentId++,
-                    name: literalParts[0],
-                    value: literalParts[2]
-                };
-                currentEnum.literals.push({ literal });
-            }
-        } else if (line.startsWith('entity')) {
-            currentEntity = {
-                id: currentId++,
-                name: line.split('entity ')[1].replace(":","").trim(),
-                attributes: [],
-            };
-            result.project.entities.push({ entity: currentEntity });
-        } else if (line.startsWith('attribute')) {
-            if (currentEntity) {
-                const attributeParts = line.split('attribute ')[1].trim().split(' ');
-                const attribute: AttributeNode = {
-                    id: currentId++,
-                    name: attributeParts[0],
-                    type: attributeParts[1],
-                    primaryKey: attributeParts.includes('primaryKey'),
-                    nullable: attributeParts.includes('nullable'),
-                };
-                currentEntity.attributes.push({ attribute });
-            }
-        } else if (line.startsWith('relationship')) {
-            const relationshipParts = line.split('relationship ')[1].trim().split(' ');
-            const relationship: RelationshipNode = {
-                id: currentId++,
-                from: relationshipParts[2],
-                to: relationshipParts[4],
-                type: relationshipParts[0],
-            };
-            result.project.relationships.push({ relationship });
-        } else if (line.startsWith('repository')) {
-            if(isExternalRepositoryAppel) {
-                currentRepository = {
-                    id: currentId++,
-                    name: line.split('repository ')[1].split(' for')[0].trim(),
-                    entity: line.includes('for') ? line.split('for ')[1].replace(":","").trim() : '',
-                    queries: [],
-                };
-                result.project.repositories.push({ repository: currentRepository });
-            } else if(currentService) {
-                const repositoryParts = line.split('repository ')[1].trim().split(' ');
-                currentService.repository = repositoryParts[0];
-            }
-        } else if (line.startsWith('query')) {
-            if (currentRepository) {
-                const queryParts = line.split('query ')[1].trim().split(' ');
-                currentQuery = {
-                    id: currentId++,
-                    name: queryParts[0],
-                    type: '',
-                    parameters: [],
-                };
-                currentRepository.queries.push({ query : currentQuery });
-            }
-        } else if (line.startsWith('type')) {
-            const typeParts = line.split('type ')[1].trim().split(' ');
-            if(currentQuery && isQueryTypeAppel) {
-                currentQuery.type = typeParts[0];
-            } else {
-                result.project.configuration.datasource.type = typeParts[0];
-            }
-        } else if (line.startsWith('parameter')) {
-            if(isExternalRepositoryAppel && isExternalServiceAppel) {
-                // not in service & not in controller => in repository => in query
-                if(currentQuery) {
-                    const parameterParts = line.split('parameter ')[1].trim().split(' ');
-                    const parameter: QueryParameter = {
-                        id: currentId++,
-                        name: parameterParts[0],
-                        attribute: parameterParts[2],
-                    };
-                    currentQuery.parameters.push({ parameter });
-                }
-            } else if(isExternalRepositoryAppel) {
-                // not in service => in controller => in route => in requestBody
-                if(currentRoute) {
-                    const parameterParts = line.split('parameter ')[1].trim().split(' ');
-                    const parameter: QueryParameter = {
-                        id: currentId++,
-                        name: parameterParts[0],
-                        attribute: parameterParts[2],
-                    };
-                    if(!currentRoute.requestBody) {
-                        currentRoute.requestBody = {
-                            id: currentId++,
-                            parameters: [],
-                        };
-                    }
-                    currentRoute.requestBody.parameters.push({ parameter });
-                }
-            } else {
-                // not in cotroller => in service => in method
-                if(currentMethod) {
-                    const parameterParts = line.split('parameter ')[1].trim().split(' ');
-                    const parameter: QueryParameter = {
-                        id: currentId++,
-                        name: parameterParts[0],
-                        attribute: parameterParts[2],
-                    };
-                    currentMethod.parameters.push({ parameter });
-                }
-            }
-        } else if (line.startsWith('service')) {
-            if(isExternalServiceAppel) {
-                const serviceNameParts = line.split('service ')[1].split(' for ');
-                const serviceName = serviceNameParts[0].trim();
-                const serviceEntity = serviceNameParts[1] ? serviceNameParts[1].replace(":","").trim() : '';
-                currentService = {
-                    id: currentId++,
-                    name: serviceName,
-                    entity: serviceEntity,
-                    repository: '',
-                    methods: [],
-                };
-                result.project.services.push({ service: currentService });
-            } else if(currentController) {
-                const serviceParts = line.split('service ')[1].trim().split(' ');
-                currentController.service = serviceParts[0];
-            }
-        } else if (line.startsWith('method')) {
-            if (currentService) {
-                const methodParts = line.split('method ')[1].trim().split(' ');
-                currentMethod = {
-                    id: currentId++,
-                    name: methodParts[0],
-                    parameters: [],
-                };
-                currentService.methods.push({ method : currentMethod });
-            }
-        } else if (line.startsWith('controller')) {
-            const controllerNameParts = line.split('controller ')[1].split(' for ');
-            const controllerName = controllerNameParts[0].trim();
-            const controllerEntity = controllerNameParts[1] ? controllerNameParts[1].replace(":","").trim() : '';
-            currentController = {
-                id: currentId++,
-                name: controllerName,
-                path: '',
-                entity: controllerEntity,
-                service: '',
-                routes: [],
-            };
-            result.project.controllers.push({ controller: currentController });
-        } else if (line.startsWith('route')) {
-            if (currentController) {
-                const routeParts = line.split('route ')[1].trim().split(' ');
-                currentRoute = {
-                    id: currentId++,
-                    name: routeParts[0],
-                    path: '',
-                    operation: '',
-                    requestParameters: [],
-                    requestBody: null,
-                };
-                currentController.routes.push({ route : currentRoute });
-            }
-        } else if (line.startsWith('path')) {
-            const pathParts = line.split('path ')[1].trim().split(' ');
-            if(currentController && isControllerPathAppel) { // controller       
-                currentController.path = pathParts[0];
-            } else if(currentRoute) { // route
-                currentRoute.path = pathParts[0];
-            }
-        } else if (line.startsWith('operation')) {
-            if(currentRoute) { // route    
-                const operationParts = line.split('operation ')[1].trim().split(' ');
-                currentRoute.operation = operationParts[0];
-            }
-        } else if (line.startsWith('requestParameter')) {
-            if(currentRoute) {
-                    const parameterParts = line.split('requestParameter ')[1].trim().split(' ');
-                    const parameter: RequestParameter = {
-                        id: currentId++,
-                        name: parameterParts[0],
-                        attribute: parameterParts[2],
-                        isRequired: parameterParts.includes('required'),
-                    };
-                    currentRoute.requestParameters!.push({ requestParameter : parameter });
-            }
-        } else if (line.startsWith('configuration')) {
-            result.project.configuration.id = currentId++;
-        } else if (line.startsWith('metadata')) {
-            result.project.configuration.metadata.id = currentId++;
-        } else if (line.startsWith('buildTool')) {
-            result.project.configuration.metadata.buildTool = line.split('buildTool ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('springVersion')) {
-            result.project.configuration.metadata.springVersion = line.split('springVersion ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('group')) {
-            result.project.configuration.metadata.group = line.split('group ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('artifact')) {
-            result.project.configuration.metadata.artifact = line.split('artifact ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('name')) {
-            result.project.configuration.metadata.name = line.split('name ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('description')) {
-            result.project.configuration.metadata.description = line.split('description ')[1].trim().replace(/^"(.*)"$/, '$1');
-        } else if (line.startsWith('package')) {
-            result.project.configuration.metadata.package = line.split('package ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('packaging')) {
-            result.project.configuration.metadata.packaging = line.split('packaging ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('javaVersion')) {
-            result.project.configuration.metadata.javaVersion = parseInt(line.split('javaVersion ')[1].trim().split(' ')[0], 10);
-        } else if (line.startsWith('datasource')) {
-            result.project.configuration.datasource.id = currentId++;
-        } else if (line.startsWith('server')) {
-            result.project.configuration.server.id = currentId++;
-        } else if (line.startsWith('database')) {
-            result.project.configuration.datasource.database = line.split('database ')[1].trim().split(' ')[0];
-        } else if (line.startsWith('host')) {
-            if(isConfigServerAppel) {
-                result.project.configuration.server.host = line.split('host ')[1].trim().split(' ')[0];
-            } else {
-                result.project.configuration.datasource.host = line.split('host ')[1].trim().split(' ')[0];
-            }
-        } else if (line.startsWith('port')) {
-            result.project.configuration.server.id = currentId++;
-            if(isConfigServerAppel) {
-                result.project.configuration.server.port = parseInt(line.split('port ')[1].trim().split(' ')[0], 10);
-            } else {
-                result.project.configuration.datasource.port = parseInt(line.split('port ')[1].trim().split(' ')[0], 10);
-            }
-        }
-    }
+		if (line.startsWith('datasource')) {
+			isConfigServerAppel = false;
+		} else if (line.startsWith('server')) {
+			isConfigServerAppel = true;
+		};
 
-    return result;
+		if (line.startsWith('project')) {
+			result.project.name = line.split('project ')[1].replace(":", "").trim();
+		} else if (line.startsWith('enum')) {
+			currentEnum = {
+				id: currentId++,
+				name: line.split('enum ')[1].replace(":", "").trim(),
+				literals: [],
+			};
+			result.project.enums.push({ enum: currentEnum });
+		} else if (line.startsWith('literal')) {
+			if (currentEnum) {
+				const literalParts = line.split('literal ')[1].trim().split(' ');
+				const literal: EnumLiteralNode = {
+					id: currentId++,
+					name: literalParts[0],
+					value: literalParts[2]
+				};
+				currentEnum.literals.push({ literal });
+			}
+		} else if (line.startsWith('entity')) {
+			currentEntity = {
+				id: currentId++,
+				name: line.split('entity ')[1].replace(":", "").trim(),
+				attributes: [],
+			};
+			result.project.entities.push({ entity: currentEntity });
+		} else if (line.startsWith('attribute')) {
+			if (currentEntity) {
+				const attributeParts = line.split('attribute ')[1].trim().split(' ');
+				const attribute: AttributeNode = {
+					id: currentId++,
+					name: attributeParts[0],
+					type: attributeParts[1],
+					primaryKey: attributeParts.includes('primaryKey'),
+					nullable: attributeParts.includes('nullable'),
+				};
+				currentEntity.attributes.push({ attribute });
+			}
+		} else if (line.startsWith('relationship')) {
+			const relationshipParts = line.split('relationship ')[1].trim().split(' ');
+			const relationship: RelationshipNode = {
+				id: currentId++,
+				from: relationshipParts[2],
+				to: relationshipParts[4],
+				type: relationshipParts[0],
+			};
+			result.project.relationships.push({ relationship });
+		} else if (line.startsWith('repository')) {
+			if (isExternalRepositoryAppel) {
+				currentRepository = {
+					id: currentId++,
+					name: line.split('repository ')[1].split(' for')[0].trim(),
+					entity: line.includes('for') ? line.split('for ')[1].replace(":", "").trim() : '',
+					queries: [],
+				};
+				result.project.repositories.push({ repository: currentRepository });
+			} else if (currentService) {
+				const repositoryParts = line.split('repository ')[1].trim().split(' ');
+				currentService.repository = repositoryParts[0];
+			}
+		} else if (line.startsWith('query')) {
+			if (currentRepository) {
+				const queryParts = line.split('query ')[1].trim().split(' ');
+				currentQuery = {
+					id: currentId++,
+					name: queryParts[0],
+					type: '',
+					parameters: [],
+				};
+				currentRepository.queries.push({ query: currentQuery });
+			}
+		} else if (line.startsWith('type')) {
+			const typeParts = line.split('type ')[1].trim().split(' ');
+			if (currentQuery && isQueryTypeAppel) {
+				currentQuery.type = typeParts[0];
+			} else {
+				result.project.configuration.datasource.type = typeParts[0];
+			}
+		} else if (line.startsWith('parameter')) {
+			if (isExternalRepositoryAppel && isExternalServiceAppel) {
+				// not in service & not in controller => in repository => in query
+				if (currentQuery) {
+					const parameterParts = line.split('parameter ')[1].trim().split(' ');
+					const parameter: QueryParameterNode = {
+						id: currentId++,
+						name: parameterParts[0],
+						attribute: parameterParts[2],
+					};
+					currentQuery.parameters.push({ parameter });
+				}
+			} else if (isExternalRepositoryAppel) {
+				// not in service => in controller => in route => in requestBody
+				if (currentRoute) {
+					const parameterParts = line.split('parameter ')[1].trim().split(' ');
+					const parameter: QueryParameterNode = {
+						id: currentId++,
+						name: parameterParts[0],
+						attribute: parameterParts[2],
+					};
+					if (!currentRoute.requestBody) {
+						currentRoute.requestBody = {
+							id: currentId++,
+							parameters: [],
+						};
+					}
+					currentRoute.requestBody.parameters.push({ parameter });
+				}
+			} else {
+				// not in cotroller => in service => in method
+				if (currentMethod) {
+					const parameterParts = line.split('parameter ')[1].trim().split(' ');
+					const parameter: QueryParameterNode = {
+						id: currentId++,
+						name: parameterParts[0],
+						attribute: parameterParts[2],
+					};
+					currentMethod.parameters.push({ parameter });
+				}
+			}
+		} else if (line.startsWith('service')) {
+			if (isExternalServiceAppel) {
+				const serviceNameParts = line.split('service ')[1].split(' for ');
+				const serviceName = serviceNameParts[0].trim();
+				const serviceEntity = serviceNameParts[1] ? serviceNameParts[1].replace(":", "").trim() : '';
+				currentService = {
+					id: currentId++,
+					name: serviceName,
+					entity: serviceEntity,
+					repository: '',
+					methods: [],
+				};
+				result.project.services.push({ service: currentService });
+			} else if (currentController) {
+				const serviceParts = line.split('service ')[1].trim().split(' ');
+				currentController.service = serviceParts[0];
+			}
+		} else if (line.startsWith('method')) {
+			if (currentService) {
+				const methodParts = line.split('method ')[1].trim().split(' ');
+				currentMethod = {
+					id: currentId++,
+					name: methodParts[0],
+					parameters: [],
+				};
+				currentService.methods.push({ method: currentMethod });
+			}
+		} else if (line.startsWith('controller')) {
+			const controllerNameParts = line.split('controller ')[1].split(' for ');
+			const controllerName = controllerNameParts[0].trim();
+			const controllerEntity = controllerNameParts[1] ? controllerNameParts[1].replace(":", "").trim() : '';
+			currentController = {
+				id: currentId++,
+				name: controllerName,
+				path: '',
+				entity: controllerEntity,
+				service: '',
+				routes: [],
+			};
+			result.project.controllers.push({ controller: currentController });
+		} else if (line.startsWith('route')) {
+			if (currentController) {
+				const routeParts = line.split('route ')[1].trim().split(' ');
+				currentRoute = {
+					id: currentId++,
+					name: routeParts[0],
+					path: '',
+					operation: '',
+					requestParameters: [],
+					requestBody: null,
+				};
+				currentController.routes.push({ route: currentRoute });
+			}
+		} else if (line.startsWith('path')) {
+			const pathParts = line.split('path ')[1].trim().split(' ');
+			if (currentController && isControllerPathAppel) { // controller       
+				currentController.path = pathParts[0];
+			} else if (currentRoute) { // route
+				currentRoute.path = pathParts[0];
+			}
+		} else if (line.startsWith('operation')) {
+			if (currentRoute) { // route    
+				const operationParts = line.split('operation ')[1].trim().split(' ');
+				currentRoute.operation = operationParts[0];
+			}
+		} else if (line.startsWith('requestParameter')) {
+			if (currentRoute) {
+				const parameterParts = line.split('requestParameter ')[1].trim().split(' ');
+				const parameter: RequestParameterNode = {
+					id: currentId++,
+					name: parameterParts[0],
+					attribute: parameterParts[2],
+					isRequired: parameterParts.includes('required'),
+				};
+				currentRoute.requestParameters!.push({ requestParameter: parameter });
+			}
+		} else if (line.startsWith('configuration')) {
+			result.project.configuration.id = currentId++;
+		} else if (line.startsWith('metadata')) {
+			result.project.configuration.metadata.id = currentId++;
+		} else if (line.startsWith('buildTool')) {
+			result.project.configuration.metadata.buildTool = line.split('buildTool ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('springVersion')) {
+			result.project.configuration.metadata.springVersion = line.split('springVersion ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('group')) {
+			result.project.configuration.metadata.group = line.split('group ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('artifact')) {
+			result.project.configuration.metadata.artifact = line.split('artifact ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('name')) {
+			result.project.configuration.metadata.name = line.split('name ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('description')) {
+			result.project.configuration.metadata.description = line.split('description ')[1].trim().replace(/^"(.*)"$/, '$1');
+		} else if (line.startsWith('package')) {
+			result.project.configuration.metadata.package = line.split('package ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('packaging')) {
+			result.project.configuration.metadata.packaging = line.split('packaging ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('javaVersion')) {
+			result.project.configuration.metadata.javaVersion = parseInt(line.split('javaVersion ')[1].trim().split(' ')[0], 10);
+		} else if (line.startsWith('datasource')) {
+			result.project.configuration.datasource.id = currentId++;
+		} else if (line.startsWith('server')) {
+			result.project.configuration.server.id = currentId++;
+		} else if (line.startsWith('database')) {
+			result.project.configuration.datasource.database = line.split('database ')[1].trim().split(' ')[0];
+		} else if (line.startsWith('host')) {
+			if (isConfigServerAppel) {
+				result.project.configuration.server.host = line.split('host ')[1].trim().split(' ')[0];
+			} else {
+				result.project.configuration.datasource.host = line.split('host ')[1].trim().split(' ')[0];
+			}
+		} else if (line.startsWith('port')) {
+			result.project.configuration.server.id = currentId++;
+			if (isConfigServerAppel) {
+				result.project.configuration.server.port = parseInt(line.split('port ')[1].trim().split(' ')[0], 10);
+			} else {
+				result.project.configuration.datasource.port = parseInt(line.split('port ')[1].trim().split(' ')[0], 10);
+			}
+		}
+	}
+
+	return result;
 }
 
-function convertJSONToVCoreFormat(data: ResultNode): string {
+function parseJSONToJgenFormat(data: JgenNode): string {
 	const { project } = data;
 	const { name, entities, relationships, enums, repositories, services } = project;
 
@@ -996,9 +994,8 @@ function transformJsonToTree(json: any): EcoreModel {
 		if (json.hasOwnProperty("project") && json.project.hasOwnProperty("relationships")) {
 			json.project.relationships.forEach((child: any) => {
 				let child_key = getChildKey(child);
-				let child_name = child[child_key].type;
+				let child_name = child[child_key].name; // ?
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1008,14 +1005,23 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("relationship") && json.relationship.hasOwnProperty("from") && json.relationship.hasOwnProperty("to")) {
 			let fromChildNode = new EcoreNode('from', json.relationship.from);
+			fromChildNode.setId((lastId++).toString());
 			fromChildNode.setParent(node);
 			node.getChildren().push(fromChildNode);
 			parseJson(fromChildNode, json.relationship.from);
 
 			let toChildNode = new EcoreNode('to', json.relationship.to);
+			toChildNode.setId((lastId++).toString());
 			toChildNode.setParent(node);
 			node.getChildren().push(toChildNode);
 			parseJson(toChildNode, json.relationship.to);
+		}
+
+		if (json.hasOwnProperty("relationship") && json.relationship.hasOwnProperty("type")) {
+			let childNode = new EcoreNode('type', json.relationship.type);
+			childNode.setId((lastId++).toString());
+			childNode.setParent(node);
+			node.getChildren().push(childNode);
 		}
 
 		//
@@ -1025,7 +1031,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1035,7 +1040,7 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("repository") && json.repository.hasOwnProperty("entity")) {
 			let childNode = new EcoreNode('entity', json.repository.entity);
-			childNode.setId(json.repository.entity.id); // not exist, json.repository.id++
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
@@ -1045,7 +1050,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1055,7 +1059,7 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("query") && json.query.hasOwnProperty("type")) {
 			let childNode = new EcoreNode('type', json.query.type);
-			childNode.setId(json.query.type.id); // not exist, json.repository.id++
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
@@ -1065,7 +1069,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1075,7 +1078,7 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("parameter") && json.parameter.hasOwnProperty("attribute")) {
 			let childNode = new EcoreNode('attribute', json.parameter.attribute);
-			childNode.setId(json.parameter.attribute.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 			// parseJson(childNode, json.parameter.attribute);
@@ -1088,7 +1091,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1098,14 +1100,14 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("service") && json.service.hasOwnProperty("entity")) {
 			let childNode = new EcoreNode('entity', json.service.entity);
-			childNode.setId(json.service.entity.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
 
 		if (json.hasOwnProperty("service") && json.service.hasOwnProperty("repository")) {
 			let childNode = new EcoreNode('repository', json.service.repository);
-			childNode.setId(json.service.repository.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
@@ -1115,7 +1117,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1128,7 +1129,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1143,7 +1143,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1153,21 +1152,21 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("controller") && json.controller.hasOwnProperty("entity")) {
 			let childNode = new EcoreNode('entity', json.controller.entity);
-			childNode.setId(json.controller.entity.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
 
 		if (json.hasOwnProperty("controller") && json.controller.hasOwnProperty("service")) {
 			let childNode = new EcoreNode('service', json.controller.service);
-			childNode.setId(json.controller.service.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
 
 		if (json.hasOwnProperty("controller") && json.controller.hasOwnProperty("path")) {
 			let childNode = new EcoreNode('path', json.controller.path);
-			childNode.setId(json.controller.path.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 			// parseJson(childNode, json.parameter.attribute);
@@ -1178,7 +1177,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1188,7 +1186,7 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("route") && json.route.hasOwnProperty("path")) {
 			let childNode = new EcoreNode('path', json.route.path);
-			childNode.setId(json.route.path.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 			// parseJson(childNode, json.parameter.attribute);
@@ -1196,7 +1194,7 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("route") && json.route.hasOwnProperty("operation")) {
 			let childNode = new EcoreNode('operation', json.route.operation);
-			childNode.setId(json.route.operation.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 			// parseJson(childNode, json.parameter.attribute);
@@ -1207,7 +1205,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1217,15 +1214,15 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("requestParameter") && json.requestParameter.hasOwnProperty("attribute")) {
 			let childNode = new EcoreNode('attribute', json.requestParameter.attribute);
-			childNode.setId(json.requestParameter.attribute.id);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 			// parseJson(childNode, json.parameter.attribute);
 		}
 
 		if (json.hasOwnProperty("route") && json.route.hasOwnProperty("requestBody") && json.route.requestBody !== null) {
-			let childNode = new EcoreNode('requestBody', json.route.requestBody.name);
-			childNode.setId(json.route.requestBody.id);
+			let childNode = new EcoreNode('requestBody', json.route.requestBody.name); //?
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 			parseJson(childNode, json.route.requestBody);
@@ -1236,7 +1233,6 @@ function transformJsonToTree(json: any): EcoreModel {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
 				let childNode = new EcoreNode(child_key, child_name);
-				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -1266,15 +1262,15 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("buildTool")) {
-			let childNode = new EcoreNode('buildTool', json.buildTool); // name??
-			childNode.setId((lastId++).toString()); // confision with other ids, wes houd get the last id of node and do ui ???????????
+			let childNode = new EcoreNode('buildTool', json.buildTool);
+			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 			parseJson(childNode, json.buildTool);
 		}
 
 		if (json.hasOwnProperty("springVersion")) {
-			let childNode = new EcoreNode('springVersion', json.springVersion); // name??
+			let childNode = new EcoreNode('springVersion', json.springVersion);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1282,7 +1278,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("package")) {
-			let childNode = new EcoreNode('package', json.package); // name??
+			let childNode = new EcoreNode('package', json.package);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1290,7 +1286,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("packaging")) {
-			let childNode = new EcoreNode('packaging', json.packaging); // name??
+			let childNode = new EcoreNode('packaging', json.packaging);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1298,7 +1294,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("javaVersion")) {
-			let childNode = new EcoreNode('javaVersion', (json.javaVersion).toString()); // name??
+			let childNode = new EcoreNode('javaVersion', (json.javaVersion).toString());
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1314,7 +1310,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("type")) {
-			let childNode = new EcoreNode('type', json.type); // name??
+			let childNode = new EcoreNode('type', json.type);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1322,7 +1318,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("host")) {
-			let childNode = new EcoreNode('host', json.host); // name??
+			let childNode = new EcoreNode('host', json.host);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1330,7 +1326,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("port")) {
-			let childNode = new EcoreNode('port', (json.port).toString()); // name??
+			let childNode = new EcoreNode('port', (json.port).toString());
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1338,7 +1334,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("database")) {
-			let childNode = new EcoreNode('database', json.database); // name??
+			let childNode = new EcoreNode('database', json.database);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -1490,7 +1486,7 @@ function saveRenameDeleteChangesToJSON(operation: string, changedNode: EcoreNode
 		}
 
 		//write in File
-		let content = convertJSONToVCoreFormat(json!);
+		let content = parseJSONToJgenFormat(json!);
 		fs.writeFile(file, content, 'utf8', (err) => {
 			if (err) {
 				console.error(err);
