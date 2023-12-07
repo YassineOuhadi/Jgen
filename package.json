@@ -92,6 +92,9 @@
           "dark": "resources/dark/create-ecore-model.svg"
         }
       },
+
+
+
       {
         "command": "JGEN.rename",
         "title": "Rename"
@@ -101,29 +104,61 @@
         "title": "Delete"
       },
       {
-        "command": "JGEN.addPackage",
-        "title": "Add Package"
-      },
-      {
-        "command": "JGEN.addClass",
-        "title": "Add Class"
-      },
-      {
-        "command": "JGEN.addDataType",
-        "title": "Add Data Type"
-      },
-      {
-        "command": "JGEN.addEnumeration",
-        "title": "Add Enumeration"
+        "command": "JGEN.addEnum",
+        "title": "Add Enum"
       },
       {
         "command": "JGEN.addLiteral",
         "title": "Add Literal"
       },
       {
+        "command": "JGEN.addEntity",
+        "title": "Add Entity"
+      },
+      {
+        "command": "JGEN.addRelationship",
+        "title": "Add Relationship"
+      },
+      {
+        "command": "JGEN.addRepository",
+        "title": "Add Repository"
+      },
+      {
+        "command": "JGEN.addService",
+        "title": "Add Service"
+      },
+      {
+        "command": "JGEN.addController",
+        "title": "Add Controller"
+      },
+      {
+        "command": "JGEN.changeValue",
+        "title": "Change Value"
+      },
+      {
         "command": "JGEN.addAttribute",
         "title": "Add Attribute"
       },
+      {
+        "command": "JGEN.changeDataType",
+        "title": "Change Data Type"
+      },
+      {
+        "command": "JGEN.changeSource",
+        "title": "Change Source"
+      },
+      {
+        "command": "JGEN.changeDestination",
+        "title": "Change Destination"
+      },
+      {
+        "command": "JGEN.changeRelationshipType",
+        "title": "Change Relationship Type"
+      },
+
+      
+
+
       {
         "command": "JGEN.addReference",
         "title": "Add Reference"
@@ -160,8 +195,8 @@
     "views": {
       "Jgen_code": [
         {
-          "id": "exampleView",
-          "name": "exampleView"
+          "id": "jgenView",
+          "name": "jgenView"
         }
       ],
       "explorer": [
@@ -181,7 +216,7 @@
       "view/title": [
         {
           "command": "JGEN.refreshEntry",
-          "when": "view == exampleView",
+          "when": "view == jgenView",
           "group": "navigation"
         }
       ]

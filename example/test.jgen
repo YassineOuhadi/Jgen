@@ -1,97 +1,92 @@
-project Demo :
 
-   enum Roles :
-      literal ADMIN value admin
-      literal USER value user
+project Demo
 
-   entity User :
-      attribute id type Long primaryKey
-      attribute username type String
-      attribute email type String
-      attribute role type Roles
+	enum Roles
+		literal ADMIN value admin
+		literal USER value user
 
-   entity Tweet :
-      attribute id type Long primaryKey
-      attribute content type String
-      attribute tags type String nullable
+	entity User
+		attribute id type Long primaryKey
+		attribute username type String
+		attribute email type String
+		attribute role type Roles
 
-   relationship OneToMany from User to Tweet
+	entity Tweet
+		attribute id type Long primaryKey
+		attribute content type String
+		attribute tags type String nullable
 
-   repository userRepository for User :
-        query findBYName :
-            type SELECT
-            parameter username is fullname
-        
-        query getUserByEmail :
-            type SELECT
-            parameter email is email
-        
-        query modifyUsername :
-            type UPDATE
-            parameter id is id
-            parameter username is username
+	relationship OneToMany from User to Tweet
 
-   service userService for User :
-        repository userRepository
-        method getUserByEmail :
-            parameter email is email
+	relationship ManyToOne from Tweet to User
 
-   controller userController for User :
-        path /user
-        service userService
-        route addUser :
-            path /add
-            operation POST
-            requestBody :
-               parameter fullname is fullname
-               parameter email is email
+	repository userRepository for User
+		query findBYName
+			type SELECT
+			parameter username is fullname
+		query getUserByEmail
+			type SELECT
+			parameter email is email
+		query modifyUsername
+			type UPDATE
+			parameter id is id
+			parameter username is username
 
-        route getUser :
-            path /get
-            operation GET
-            requestParameter userId is id required
-        
-        route getUserByEmail :
-            path /get
-            operation GET
-            requestParameter userEmail is email required
-        
-        route getAllUsers :
-            path /all
-            operation GET
-        
-        route updateUser :
-            path /update
-            operation PUT
-            requestBody :
-               parameter fullname is fullname
-               parameter email is email
-            
-        route updateUser :
-            path /update
-            operation PUT
-            requestParameter fullname is email required
-            requestParameter email is email required
+	service userService for User
+		repository userRepository
+		method getUserByEmail
+			parameter email is email
 
-    configuration :
-      metadata :
-         buildTool Maven
-         springVersion 3.1.6
-         group com.example
-         artifact demo
-         name demo
-         description "Demo project for Spring Boot"
-         package com.example.demo
-         packaging Jar
-         javaVersion 17
-      
-      datasource :
-        type MySQL
-        host localhost
-        port 3306
-        database mydb
-      
-      server :
-        host localhost
-        port 9090
-		
+	controller userController for User
+		path /user
+		service userService
+		route addUser
+			path /add
+			operation POST
+			requestBody
+				parameter fullname is fullname
+				parameter email is email
+		route getUser
+			path /get
+			operation GET
+			requestParameter userId is id required
+		route getUserByEmail
+			path /get
+			operation GET
+			requestParameter userEmail is email required
+		route getAllUsers
+			path /all
+			operation GET
+		route updateUser
+			path /update
+			operation PUT
+			requestBody
+				parameter fullname is fullname
+				parameter email is email
+		route updateUser
+			path /update
+			operation PUT
+			requestParameter fullname is email required
+			requestParameter email is email required
+
+	configuration
+		metadata
+			buildTool Maven
+			springVersion 3.1.6
+			group com.example
+			artifact demo
+			name demo
+			description "Demo project for Spring Boot"
+			package com.example.demo
+			packaging Jar
+			javaVersion 17
+
+		datasource
+			type MySQL
+			host localhost
+			port 3306
+			database mydb
+
+		server
+			host localhost
+			port 9090

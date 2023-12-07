@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { JgenNode } from "../model/models";
-import { parseJgenJson } from "../extension";
+import { parseJgenJson } from "../parser";
 
 export class VcoreTreeDataProvider
   implements vscode.TreeDataProvider<JgenNode>

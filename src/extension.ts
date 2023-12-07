@@ -4,8 +4,8 @@ import { EcoreTreeDataProvider, EcoreModel, EcoreNode } from "./treeview";
 import * as path from "path";
 import { MyMenuButtonsProvider } from './models/selectFileButton';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
-//import { parse } from 'jsonc-parser';
-import { Attribute, Entity, Project } from './language-server/generated/ast';
+import { JgenNode, parseJSONToJgenFormat, parseJgenJson } from './parser';
+import { parse } from 'jsonc-parser';
 
 let client: LanguageClient;
 export let file = "";
@@ -13,153 +13,7 @@ let model: EcoreModel;
 let ecoreTreeDataProvider: EcoreTreeDataProvider;
 let treeView: vscode.TreeView<EcoreNode>;
 
-interface JgenNode {
-	project: ProjectNode;
-}
-
-interface ProjectNode {
-	id: number;
-	name: string;
-	entities: { entity: EntityNode }[];
-	relationships: { relationship: RelationshipNode }[];
-	enums: { enum: EnumNode }[];
-	repositories: { repository: RepositoryNode }[];
-	services: { service: ServiceNode }[];
-	controllers: { controller: ControllerNode }[];
-	configuration: ConfigurationNode;
-}
-
-interface EntityNode {
-	id: number;
-	name: string;
-	attributes: { attribute: AttributeNode }[];
-}
-
-interface RelationshipNode {
-	id: number;
-	from: string;
-	to: string;
-	type: string;
-}
-
-interface AttributeNode {
-	id: number;
-	name: string;
-	type: string;
-	primaryKey?: boolean;
-	nullable?: boolean;
-}
-
-interface EnumNode {
-	id: number;
-	name: string;
-	literals: { literal: EnumLiteralNode }[];
-}
-
-interface EnumLiteralNode {
-	id: number;
-	name: string;
-	value: string;
-}
-
-interface QueryParameterNode {
-	id: number;
-	name: string;
-	attribute: string;
-}
-
-interface QueryNode {
-	id: number;
-	name: string;
-	type: string;
-	parameters: { parameter: QueryParameterNode }[];
-}
-
-interface RepositoryNode {
-	id: number;
-	name: string;
-	entity: string;
-	queries: { query: QueryNode }[];
-}
-
-interface ServiceNode {
-	id: number;
-	name: string;
-	entity: string;
-	repository: string;
-	methods: { method: MethodNode }[];
-}
-
-interface MethodNode {
-	id: number;
-	name: string;
-	parameters: { parameter: QueryParameterNode }[];
-}
-
-interface ControllerNode {
-	id: number;
-	name: string;
-	path: string;
-	entity: string;
-	service: string;
-	routes: { route: RouteNode }[];
-}
-
-interface RouteNode {
-	id: number;
-	name: string;
-	path: string;
-	operation: string;
-	requestParameters?: { requestParameter: RequestParameterNode }[];
-	requestBody?: RequestBodyNode | null;
-}
-
-interface RequestParameterNode {
-	id: number;
-	name: string;
-	attribute: string;
-	isRequired: boolean;
-}
-
-interface RequestBodyNode {
-	id: number;
-	// name: string;
-	parameters: { parameter: QueryParameterNode }[];
-}
-
-interface ConfigurationNode {
-	id: number;
-	metadata: MetadataNode;
-	datasource: DatasourceNode;
-	server: ServerNode;
-}
-
-interface MetadataNode {
-	id: number;
-	buildTool: string;
-	springVersion: string;
-	group: string;
-	artifact: string;
-	name: string;
-	description: string;
-	package: string;
-	packaging: string;
-	javaVersion: number;
-}
-
-interface DatasourceNode {
-	id: number;
-	type: string;
-	host: string;
-	port: number;
-	database: string;
-}
-
-interface ServerNode {
-	id: number;
-	host: string;
-	port: number;
-}
+let extensionContext: vscode.ExtensionContext;
 
 export async function activate(context: vscode.ExtensionContext) {
 	// Create the tree view
@@ -171,7 +25,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		button.description = "#0000FF";
 	});
 
-	let mytreeView = vscode.window.createTreeView("exampleView", { treeDataProvider: menuButtons });
+	let mytreeView = vscode.window.createTreeView("jgenView", { treeDataProvider: menuButtons });
 	context.subscriptions.push(mytreeView);
 
 	// select file button
@@ -182,6 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
 					canSelectMany: false,
 					openLabel: "Select",
 					filters: {
+						// eslint-disable-next-line @typescript-eslint/naming-convention
 						"Jgen files": ["*"]
 						//"Model files": ["*.model"]
 					},
@@ -198,7 +53,7 @@ export async function activate(context: vscode.ExtensionContext) {
 							console.log("ERROR: workspaceRoot is undefined");
 							return [];
 						}
-						const filename = "\\test2.model";
+						const filename = "\\test.jgen";
 
 						/*const selectedFile = await vscode.window.showOpenDialog({
 							canSelectMany: false,
@@ -206,6 +61,8 @@ export async function activate(context: vscode.ExtensionContext) {
 							'Model files': ['model']
 							}
 						}); */
+
+						// eslint-disable-next-line eqeqeq
 						if (filePath == undefined) {
 							filePath = workspaceRoot + filename;
 						}
@@ -213,17 +70,22 @@ export async function activate(context: vscode.ExtensionContext) {
 						file = filePath;
 
 						context.subscriptions.splice(context.subscriptions.indexOf(mytreeView), 1);
+						extensionContext = context;
 						model = convertJsonToEcoreModel(file);
 
 						ecoreTreeDataProvider = new EcoreTreeDataProvider(model);
-						vscode.commands.registerCommand('JGEN.refreshEntry', () => ecoreTreeDataProvider.refresh());
 
-						vscode.window.registerTreeDataProvider('exampleView', ecoreTreeDataProvider);
+						vscode.commands.registerCommand('JGEN.refreshEntry', () => {
+							// Refresh the tree view
+							refreshTreeView();
+						});
 
-						treeView = vscode.window.createTreeView('exampleView', { treeDataProvider: ecoreTreeDataProvider });
+						vscode.window.registerTreeDataProvider('jgenView', ecoreTreeDataProvider);
+
+						treeView = vscode.window.createTreeView('jgenView', { treeDataProvider: ecoreTreeDataProvider });
 						context.subscriptions.push(treeView);
 
-						vscodeMDE(context, filePath);
+						vscodeMDE(context);
 					} else { return []; }
 				});
 		})
@@ -265,13 +127,23 @@ export async function activate(context: vscode.ExtensionContext) {
 			}
 		});
 	}));
+
+	// create new file button
+
+	//import file button
 }
 
-// create new file button
+function refreshTreeView() {
+	model = convertJsonToEcoreModel(file);
+	ecoreTreeDataProvider = new EcoreTreeDataProvider(model);
+	vscode.window.registerTreeDataProvider('jgenView', ecoreTreeDataProvider);
+	treeView = vscode.window.createTreeView('jgenView', { treeDataProvider: ecoreTreeDataProvider });
+	extensionContext.subscriptions.push(treeView);
+	vscodeMDE(extensionContext);
+	ecoreTreeDataProvider.refresh();
+};
 
-//import file button
-
-async function vscodeMDE(context: vscode.ExtensionContext, selectFile: string) {
+async function vscodeMDE(context: vscode.ExtensionContext) {
 	context.subscriptions.push(treeView.onDidChangeSelection(async (event) => {
 		if (event.selection.length > 0) {
 			const selectedNode: EcoreNode = event.selection[0];
@@ -280,39 +152,54 @@ async function vscodeMDE(context: vscode.ExtensionContext, selectFile: string) {
 
 			if (event.selection) {
 				switch (selectedNode.type) {
+
 					case 'project':
-						// case 'VPackage':
 						actions.push({ label: 'Rename', command: 'JGEN.rename' });
-						actions.push({ label: 'Delete', command: 'JGEN.delete' });
-						actions.push({ label: 'Add Package', command: 'JGEN.addPackage' });
-						actions.push({ label: 'Add Class ', command: 'JGEN.addClass' });
-						actions.push({ label: 'Add Enumeration', command: 'JGEN.addEnumeration' });
-						actions.push({ label: 'Add Data Type', command: 'JGEN.addDataType' });
+						// actions.push({ label: 'Delete', command: 'JGEN.delete' });
+						actions.push({ label: 'Add Enum', command: 'JGEN.addEnum' });
+						actions.push({ label: 'Add Entity ', command: 'JGEN.addEntity' });
+						actions.push({ label: 'Add Relationship', command: 'JGEN.addRelationship' });
+						actions.push({ label: 'Add Repository', command: 'JGEN.addRepository' });
+						actions.push({ label: 'Add Service', command: 'JGEN.addService' });
+						actions.push({ label: 'Add Controller', command: 'JGEN.addController' });
 						break;
-					case 'entity':
-						actions.push({ label: 'Show Properties', command: 'JGEN.openContextMenu' });
+
+					case 'enum':
 						actions.push({ label: 'Rename', command: 'JGEN.rename' });
 						actions.push({ label: 'Delete', command: 'JGEN.delete' });
-						//actions.push({ label: 'Add Association', command: 'JGEN.addAssociation' });
-						actions.push({ label: 'Add Super Type', command: 'JGEN.addGeneralization' });
-						//actions.push({ label: 'Add Constraint', command: 'JGEN.addConstraint' });
+						actions.push({ label: 'Add Literal', command: 'JGEN.addLiteral' });
+						break;
+					case 'literal':
+						actions.push({ label: 'Rename', command: 'JGEN.rename' });
+						actions.push({ label: 'Delete', command: 'JGEN.delete' });
+						actions.push({ label: 'Change Value', command: 'JGEN.changeValue' });
+						break;
+
+					case 'entity':
+						// actions.push({ label: 'Show Properties', command: 'JGEN.openContextMenu' });
+						actions.push({ label: 'Rename', command: 'JGEN.rename' });
+						actions.push({ label: 'Delete', command: 'JGEN.delete' });
 						actions.push({ label: 'Add Attribute', command: 'JGEN.addAttribute' });
-						actions.push({ label: 'Add Operation', command: 'JGEN.addOperation' });
-						actions.push({ label: 'Add Reference', command: 'JGEN.addReference' });
-						actions.push({ label: 'Add Annotation', command: 'JGEN.addAnnotation' });
+						// add relationship
 						break;
 					case 'attribute':
-						actions.push({ label: 'Show Properties', command: 'JGEN.openContextMenu' });
+						// actions.push({ label: 'Show Properties', command: 'JGEN.openContextMenu' });
 						actions.push({ label: 'Rename', command: 'JGEN.rename' });
 						actions.push({ label: 'Delete', command: 'JGEN.delete' });
-						actions.push({ label: 'Add Annotation', command: 'JGEN.addAnnotation' });
+						actions.push({ label: 'Change Data Type', command: 'JGEN.changeDataType' });
+						// primary key
+						// nullable
 						break;
+
 					case 'relationship':
-						actions.push({ label: 'Show Properties', command: 'JGEN.openContextMenu' });
-						actions.push({ label: 'Rename', command: 'JGEN.rename' });
+						// actions.push({ label: 'Show Properties', command: 'JGEN.openContextMenu' });
+						// actions.push({ label: 'Rename', command: 'JGEN.rename' });
 						actions.push({ label: 'Delete', command: 'JGEN.delete' });
-						actions.push({ label: 'Add Annotation', command: 'JGEN.addAnnotation' });
+						actions.push({ label: 'Change Source', command: 'JGEN.changeSource' });
+						actions.push({ label: 'Change Destination', command: 'JGEN.changeDestination' });
+						actions.push({ label: 'Change Relationship Type', command: 'JGEN.changeRelationshipType' });
 						break;
+
 					default:
 						break;
 				}
@@ -324,14 +211,19 @@ async function vscodeMDE(context: vscode.ExtensionContext, selectFile: string) {
 		}
 	}));
 
-	//
 	// Listen for when the file is saved
 	vscode.workspace.onDidSaveTextDocument(event => {
 		// Check if the saved file is the one that the tree view is reading from
-		if (event.fileName === selectFile) {
+		if (event.fileName === file) {
 			// Refresh the tree view
+			// model = convertJsonToEcoreModel(file);
+			// ecoreTreeDataProvider = new EcoreTreeDataProvider(model);
+			// vscode.window.registerTreeDataProvider('jgenView', ecoreTreeDataProvider);
+			// treeView = vscode.window.createTreeView('jgenView', { treeDataProvider: ecoreTreeDataProvider });
+			// context.subscriptions.push(treeView);
+			// vscodeMDE(context, selectFile);
+			// ecoreTreeDataProvider.refresh();
 			vscode.window.showErrorMessage(`File has changed manually. Please reupload it again to take the changes into consideration.`);
-			//treeView.reveal(treeView.selection[0], { select: true, focus: true });
 		}
 	});
 
@@ -354,7 +246,129 @@ async function vscodeMDE(context: vscode.ExtensionContext, selectFile: string) {
 		}));
 	}
 
-	//add attribute
+	//delete node
+	commandName = 'JGEN.delete';
+	if (!existingCommands.includes(commandName)) {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, (node: EcoreNode) => {
+			vscode.window.showInformationMessage(`Delete ${node.getName()}`);
+			const hasparent = node.getParent();
+			if (hasparent) {
+				const index = hasparent.getChildren().indexOf(node);
+				hasparent.getChildren().splice(index, 1);
+			}
+			else {
+				//delete node
+				const index = model.rootNodes.indexOf(node);
+				//console.log(index)
+				if (0 <= index && index < model.rootNodes.length) {model.rootNodes.splice(index, 1);}
+			}
+			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
+
+			//save changes to json
+			saveRenameDeleteChangesToJSON("delete", node, hasparent);
+
+			//show select file button if model is empty
+			if (model.rootNodes.length == 0) {
+				vscode.window.showErrorMessage("No model found");
+
+				// unregister tree data provider
+				vscode.window.registerTreeDataProvider('exampleView', new MyMenuButtonsProvider());
+				// re-register command for "Select File" button 
+
+				const mySelectFileButtonCommand = 'mySelectFileButtonCommand';
+
+
+				if (existingCommands.includes(mySelectFileButtonCommand)) {
+					context.subscriptions.splice(context.subscriptions.indexOf(treeView), 1);
+					vscode.commands.executeCommand(mySelectFileButtonCommand);
+				}
+
+				else {
+					context.subscriptions.push(vscode.commands.registerCommand(mySelectFileButtonCommand, () => {
+						vscode.window
+							.showOpenDialog({
+								canSelectMany: false,
+								openLabel: "Select",
+								filters: {
+									"All files": ["*"]
+									//"Model files": ["*.model"]
+								},
+							})
+							.then((fileUri) => {
+								if (fileUri) {
+									// you can use the path of the selected file to read its content
+									const filePath = fileUri[0].fsPath;
+
+									file = filePath;
+
+									context.subscriptions.splice(context.subscriptions.indexOf(treeView), 1);
+									model = convertJsonToEcoreModel(filePath);
+
+									ecoreTreeDataProvider = new EcoreTreeDataProvider(model);
+									vscode.window.registerTreeDataProvider('exampleView', ecoreTreeDataProvider);
+
+									treeView = vscode.window.createTreeView('exampleView', { treeDataProvider: ecoreTreeDataProvider });
+									context.subscriptions.push(treeView);
+
+									vscodeMDE(context);
+
+								}
+							});
+					}));
+				}
+			}
+		}));
+	}
+
+	// Add enum
+	commandName = 'JGEN.addEnum';
+	if (!existingCommands.includes(commandName)) {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+			vscode.window.showInformationMessage(`Add Enum`);
+			const newname = await vscode.window.showInputBox({ prompt: `New Enum Name: ` });
+			let newEnum= new EcoreNode('enum', newname ? newname : 'New Enum');
+			newEnum.setParent(node);
+			node.getChildren().push(newEnum);
+			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
+
+			//save changes to json
+			saveAddChangesToJSON(newEnum);
+		}));
+	}
+
+	// Add literal
+	commandName = 'JGEN.addLiteral';
+	if (!existingCommands.includes(commandName)) {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+			vscode.window.showInformationMessage(`Add Literal`);
+			const newname = await vscode.window.showInputBox({ prompt: `New Literal Name: ` });
+			let newLiteral = new EcoreNode('literal', newname ? newname : 'New Literal');
+			newLiteral.setParent(node);
+			node.getChildren().push(newLiteral);
+			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
+
+			//save changes to json
+			saveAddChangesToJSON(newLiteral);
+		}));
+	}
+
+	// Add entity
+	commandName = 'JGEN.addEntity';
+	if (!existingCommands.includes(commandName)) {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+			vscode.window.showInformationMessage(`Add Entity`);
+			const newname = await vscode.window.showInputBox({ prompt: `New Entity Name: ` });
+			let newEntity= new EcoreNode('entity', newname ? newname : 'New Entity');
+			newEntity.setParent(node);
+			node.getChildren().push(newEntity);
+			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
+
+			//save changes to json
+			saveAddChangesToJSON(newEntity);
+		}));
+	}
+
+	// Add attribute
 	commandName = 'JGEN.addAttribute';
 	if (!existingCommands.includes(commandName)) {
 		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
@@ -369,6 +383,8 @@ async function vscodeMDE(context: vscode.ExtensionContext, selectFile: string) {
 			saveAddChangesToJSON(newAttribute);
 		}));
 	}
+
+	//
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -394,27 +410,27 @@ function initializrJgenFile(project: string): JgenNode {
 				id: i++,
 				metadata: {
 					id: i++,
-					buildTool: '',
-					springVersion: '',
-					group: '',
-					artifact: '',
-					name: '',
-					description: '',
-					package: '',
-					packaging: '',
-					javaVersion: 0,
+					buildTool: 'Maven',
+					springVersion: '3.1.6',
+					group: 'com.example',
+					artifact: project,
+					name: project,
+					description: 'Demo project for Spring Boot',
+					package: `com.example.${project}`,
+					packaging: 'Jar',
+					javaVersion: 17,
 				},
 				datasource: {
 					id: i++,
-					type: '',
-					host: '',
-					port: 0,
-					database: '',
+					type: '-',
+					host: 'localhost',
+					port: 3306,
+					database: '-',
 				},
 				server: {
 					id: i++,
-					host: '',
-					port: 0,
+					host: 'localhost',
+					port: 8080,
 				},
 			},
 		}
@@ -501,423 +517,6 @@ function convertJsonToEcoreModel(selectFile: string): EcoreModel {
 				new EcoreNode('entity', 'entity 2')]),
 		]);
 	}
-}
-
-export function parseJgenJson(dsl: string): JgenNode {
-	const result: JgenNode = {
-		project: {
-			id: 0,
-			name: '',
-			entities: [],
-			relationships: [],
-			enums: [],
-			repositories: [],
-			services: [],
-			controllers: [],
-			configuration: {
-				id: 0,
-				metadata: {
-					id: 0,
-					buildTool: '',
-					springVersion: '',
-					group: '',
-					artifact: '',
-					name: '',
-					description: '',
-					package: '',
-					packaging: '',
-					javaVersion: 0,
-				},
-				datasource: {
-					id: 0,
-					type: '',
-					host: '',
-					port: 0,
-					database: '',
-				},
-				server: {
-					id: 0,
-					host: '',
-					port: 0,
-				},
-			},
-		},
-	};
-
-	const lines = dsl.split('\n').map((line) => line.trim());
-
-	let currentEntity: EntityNode | null = null;
-	let currentEnum: EnumNode | null = null;
-	let currentRepository: RepositoryNode | null = null;
-	let currentService: ServiceNode | null = null;
-	let currentController: ControllerNode | null = null;
-
-	let currentQuery: QueryNode | null = null;
-	let currentMethod: MethodNode | null = null;
-	let currentRoute: RouteNode | null = null;
-
-	let currentId = 1;
-	let isExternalRepositoryAppel = true;
-	let isExternalServiceAppel = true;
-	// let isExternalControllerAppel = true;
-	let isQueryTypeAppel = true;
-	let isControllerPathAppel = true;
-	let isConfigServerAppel = true;
-
-	for (const line of lines) {
-
-		if (isExternalServiceAppel && line.startsWith('service')) {
-			isExternalRepositoryAppel = false;
-		} else if (line.startsWith('entity')
-			// || line.startsWith('repository')
-			|| line.startsWith('enum')
-			|| line.startsWith('relationship')
-			|| line.startsWith('controller')
-			|| line.startsWith('configuration')) {
-			isExternalRepositoryAppel = true; // not in service
-		};
-
-		if (line.startsWith('controller')) {
-			isExternalServiceAppel = false;
-		} else if (line.startsWith('entity')
-			|| line.startsWith('enum')
-			|| line.startsWith('relationship')
-			|| line.startsWith('repository')
-			//   || line.startsWith('service') 
-			|| line.startsWith('configuration')) {
-			isExternalServiceAppel = true; // not in controller
-		};
-
-		if (line.startsWith('query')) {
-			isQueryTypeAppel = true;
-		} else if (line.startsWith('configuration')) {
-			isQueryTypeAppel = false;
-		};
-
-		if (line.startsWith('controller')) {
-			isControllerPathAppel = true;
-		} else if (line.startsWith('route')) {
-			isControllerPathAppel = false;
-		};
-
-		if (line.startsWith('datasource')) {
-			isConfigServerAppel = false;
-		} else if (line.startsWith('server')) {
-			isConfigServerAppel = true;
-		};
-
-		if (line.startsWith('project')) {
-			result.project.name = line.split('project ')[1].replace(":", "").trim();
-		} else if (line.startsWith('enum')) {
-			currentEnum = {
-				id: currentId++,
-				name: line.split('enum ')[1].replace(":", "").trim(),
-				literals: [],
-			};
-			result.project.enums.push({ enum: currentEnum });
-		} else if (line.startsWith('literal')) {
-			if (currentEnum) {
-				const literalParts = line.split('literal ')[1].trim().split(' ');
-				const literal: EnumLiteralNode = {
-					id: currentId++,
-					name: literalParts[0],
-					value: literalParts[2]
-				};
-				currentEnum.literals.push({ literal });
-			}
-		} else if (line.startsWith('entity')) {
-			currentEntity = {
-				id: currentId++,
-				name: line.split('entity ')[1].replace(":", "").trim(),
-				attributes: [],
-			};
-			result.project.entities.push({ entity: currentEntity });
-		} else if (line.startsWith('attribute')) {
-			if (currentEntity) {
-				const attributeParts = line.split('attribute ')[1].trim().split(' ');
-				const attribute: AttributeNode = {
-					id: currentId++,
-					name: attributeParts[0],
-					type: attributeParts[1],
-					primaryKey: attributeParts.includes('primaryKey'),
-					nullable: attributeParts.includes('nullable'),
-				};
-				currentEntity.attributes.push({ attribute });
-			}
-		} else if (line.startsWith('relationship')) {
-			const relationshipParts = line.split('relationship ')[1].trim().split(' ');
-			const relationship: RelationshipNode = {
-				id: currentId++,
-				from: relationshipParts[2],
-				to: relationshipParts[4],
-				type: relationshipParts[0],
-			};
-			result.project.relationships.push({ relationship });
-		} else if (line.startsWith('repository')) {
-			if (isExternalRepositoryAppel) {
-				currentRepository = {
-					id: currentId++,
-					name: line.split('repository ')[1].split(' for')[0].trim(),
-					entity: line.includes('for') ? line.split('for ')[1].replace(":", "").trim() : '',
-					queries: [],
-				};
-				result.project.repositories.push({ repository: currentRepository });
-			} else if (currentService) {
-				const repositoryParts = line.split('repository ')[1].trim().split(' ');
-				currentService.repository = repositoryParts[0];
-			}
-		} else if (line.startsWith('query')) {
-			if (currentRepository) {
-				const queryParts = line.split('query ')[1].trim().split(' ');
-				currentQuery = {
-					id: currentId++,
-					name: queryParts[0],
-					type: '',
-					parameters: [],
-				};
-				currentRepository.queries.push({ query: currentQuery });
-			}
-		} else if (line.startsWith('type')) {
-			const typeParts = line.split('type ')[1].trim().split(' ');
-			if (currentQuery && isQueryTypeAppel) {
-				currentQuery.type = typeParts[0];
-			} else {
-				result.project.configuration.datasource.type = typeParts[0];
-			}
-		} else if (line.startsWith('parameter')) {
-			if (isExternalRepositoryAppel && isExternalServiceAppel) {
-				// not in service & not in controller => in repository => in query
-				if (currentQuery) {
-					const parameterParts = line.split('parameter ')[1].trim().split(' ');
-					const parameter: QueryParameterNode = {
-						id: currentId++,
-						name: parameterParts[0],
-						attribute: parameterParts[2],
-					};
-					currentQuery.parameters.push({ parameter });
-				}
-			} else if (isExternalRepositoryAppel) {
-				// not in service => in controller => in route => in requestBody
-				if (currentRoute) {
-					const parameterParts = line.split('parameter ')[1].trim().split(' ');
-					const parameter: QueryParameterNode = {
-						id: currentId++,
-						name: parameterParts[0],
-						attribute: parameterParts[2],
-					};
-					if (!currentRoute.requestBody) {
-						currentRoute.requestBody = {
-							id: currentId++,
-							parameters: [],
-						};
-					}
-					currentRoute.requestBody.parameters.push({ parameter });
-				}
-			} else {
-				// not in cotroller => in service => in method
-				if (currentMethod) {
-					const parameterParts = line.split('parameter ')[1].trim().split(' ');
-					const parameter: QueryParameterNode = {
-						id: currentId++,
-						name: parameterParts[0],
-						attribute: parameterParts[2],
-					};
-					currentMethod.parameters.push({ parameter });
-				}
-			}
-		} else if (line.startsWith('service')) {
-			if (isExternalServiceAppel) {
-				const serviceNameParts = line.split('service ')[1].split(' for ');
-				const serviceName = serviceNameParts[0].trim();
-				const serviceEntity = serviceNameParts[1] ? serviceNameParts[1].replace(":", "").trim() : '';
-				currentService = {
-					id: currentId++,
-					name: serviceName,
-					entity: serviceEntity,
-					repository: '',
-					methods: [],
-				};
-				result.project.services.push({ service: currentService });
-			} else if (currentController) {
-				const serviceParts = line.split('service ')[1].trim().split(' ');
-				currentController.service = serviceParts[0];
-			}
-		} else if (line.startsWith('method')) {
-			if (currentService) {
-				const methodParts = line.split('method ')[1].trim().split(' ');
-				currentMethod = {
-					id: currentId++,
-					name: methodParts[0],
-					parameters: [],
-				};
-				currentService.methods.push({ method: currentMethod });
-			}
-		} else if (line.startsWith('controller')) {
-			const controllerNameParts = line.split('controller ')[1].split(' for ');
-			const controllerName = controllerNameParts[0].trim();
-			const controllerEntity = controllerNameParts[1] ? controllerNameParts[1].replace(":", "").trim() : '';
-			currentController = {
-				id: currentId++,
-				name: controllerName,
-				path: '',
-				entity: controllerEntity,
-				service: '',
-				routes: [],
-			};
-			result.project.controllers.push({ controller: currentController });
-		} else if (line.startsWith('route')) {
-			if (currentController) {
-				const routeParts = line.split('route ')[1].trim().split(' ');
-				currentRoute = {
-					id: currentId++,
-					name: routeParts[0],
-					path: '',
-					operation: '',
-					requestParameters: [],
-					requestBody: null,
-				};
-				currentController.routes.push({ route: currentRoute });
-			}
-		} else if (line.startsWith('path')) {
-			const pathParts = line.split('path ')[1].trim().split(' ');
-			if (currentController && isControllerPathAppel) { // controller       
-				currentController.path = pathParts[0];
-			} else if (currentRoute) { // route
-				currentRoute.path = pathParts[0];
-			}
-		} else if (line.startsWith('operation')) {
-			if (currentRoute) { // route    
-				const operationParts = line.split('operation ')[1].trim().split(' ');
-				currentRoute.operation = operationParts[0];
-			}
-		} else if (line.startsWith('requestParameter')) {
-			if (currentRoute) {
-				const parameterParts = line.split('requestParameter ')[1].trim().split(' ');
-				const parameter: RequestParameterNode = {
-					id: currentId++,
-					name: parameterParts[0],
-					attribute: parameterParts[2],
-					isRequired: parameterParts.includes('required'),
-				};
-				currentRoute.requestParameters!.push({ requestParameter: parameter });
-			}
-		} else if (line.startsWith('configuration')) {
-			result.project.configuration.id = currentId++;
-		} else if (line.startsWith('metadata')) {
-			result.project.configuration.metadata.id = currentId++;
-		} else if (line.startsWith('buildTool')) {
-			result.project.configuration.metadata.buildTool = line.split('buildTool ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('springVersion')) {
-			result.project.configuration.metadata.springVersion = line.split('springVersion ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('group')) {
-			result.project.configuration.metadata.group = line.split('group ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('artifact')) {
-			result.project.configuration.metadata.artifact = line.split('artifact ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('name')) {
-			result.project.configuration.metadata.name = line.split('name ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('description')) {
-			result.project.configuration.metadata.description = line.split('description ')[1].trim().replace(/^"(.*)"$/, '$1');
-		} else if (line.startsWith('package')) {
-			result.project.configuration.metadata.package = line.split('package ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('packaging')) {
-			result.project.configuration.metadata.packaging = line.split('packaging ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('javaVersion')) {
-			result.project.configuration.metadata.javaVersion = parseInt(line.split('javaVersion ')[1].trim().split(' ')[0], 10);
-		} else if (line.startsWith('datasource')) {
-			result.project.configuration.datasource.id = currentId++;
-		} else if (line.startsWith('server')) {
-			result.project.configuration.server.id = currentId++;
-		} else if (line.startsWith('database')) {
-			result.project.configuration.datasource.database = line.split('database ')[1].trim().split(' ')[0];
-		} else if (line.startsWith('host')) {
-			if (isConfigServerAppel) {
-				result.project.configuration.server.host = line.split('host ')[1].trim().split(' ')[0];
-			} else {
-				result.project.configuration.datasource.host = line.split('host ')[1].trim().split(' ')[0];
-			}
-		} else if (line.startsWith('port')) {
-			result.project.configuration.server.id = currentId++;
-			if (isConfigServerAppel) {
-				result.project.configuration.server.port = parseInt(line.split('port ')[1].trim().split(' ')[0], 10);
-			} else {
-				result.project.configuration.datasource.port = parseInt(line.split('port ')[1].trim().split(' ')[0], 10);
-			}
-		}
-	}
-
-	return result;
-}
-
-function parseJSONToJgenFormat(data: JgenNode): string {
-	const { project } = data;
-	const { name, entities, relationships, enums, repositories, services } = project;
-
-	const entityStrings = entities.map(({ entity }) => {
-		const { name: entityName, attributes } = entity;
-		const attributeStrings = attributes.map(({ attribute }) => {
-			const { name: attributeName, type, primaryKey, nullable } = attribute;
-			let attributeString = `\tattribute ${attributeName} type ${type}`;
-
-			if (primaryKey) {
-				attributeString += ' primaryKey';
-			} else if (nullable) {
-				attributeString += ' nullable';
-			}
-
-			return attributeString;
-		}).join('\n');
-
-		return `entity ${entityName} {\n${attributeStrings}\n}`;
-	}).join('\n\n');
-
-	const relationshipStrings = relationships.map(({ relationship }) => {
-		const { from, to, type } = relationship;
-		return `relationship ${type} from ${from} to ${to}`;
-	}).join('\n');
-
-	const enumStrings = enums.map(({ enum: enumNode }) => {
-		const { name: enumName, literals } = enumNode;
-		const literalStrings = literals.map(({ literal }) => {
-			const { name: literalName, value } = literal;
-			return `\tliteral ${literalName} value ${value}`;
-		}).join('\n');
-
-		return `enum ${enumName} {\n${literalStrings}\n}`;
-	}).join('\n\n');
-
-	const repositoryStrings = repositories.map(({ repository }) => {
-		const { name: repositoryName, entity, queries } = repository;
-		const queryStrings = queries.map(({ query }) => {
-			const { name: queryName, type, parameters } = query;
-			const parameterStrings = parameters.map(({ parameter }) => { // Adjust this line
-				const { name: paramName, attribute } = parameter;
-				let str = `\tparameter ${paramName} is ${attribute}`;
-				return str;
-			}).join('\n\t');
-
-			return `query ${queryName} {\n\t\ttype ${type}\n\t${parameterStrings}\n\t}`;
-		}).join('\n\n\t');
-
-		return `repository ${repositoryName} for ${entity} {\n\t${queryStrings}\n}`;
-	}).join('\n\n');
-
-	const serviceStrings = services.map(({ service }) => {
-		const { name: serviceName, entity: serviceEntity, repository: serviceRepository, methods } = service;
-		//const repositoryName = service.repository; // Add the repository name here
-		const methodStrings = methods.map(({ method }) => {
-			const { name: methodName, parameters } = method;
-			const parameterStrings = parameters.map(({ parameter }) => {
-				const { name: paramName, attribute } = parameter;
-				return `\tparameter ${paramName} is ${attribute}`;
-			}).join('\n\t');
-
-			return `method ${methodName} {\n\t${parameterStrings}\n\t}`;
-		}).join('\n\n\t');
-
-		return `service ${serviceName} for ${serviceEntity} {\n\trepository ${serviceRepository}\n\t${methodStrings}\n}`;
-	}).join('\n\n');
-
-	return `project ${name} {\n${enumStrings}\n\n${entityStrings}\n\n${relationshipStrings}\n\n${repositoryStrings}\n\n${serviceStrings}\n}`;
 }
 
 function transformJsonToTree(json: any): EcoreModel {
@@ -1376,7 +975,7 @@ function getChildKey(child: any) {
 		'package' | 'packaging' | 'javaVersion' | 'datasource' | 'host' | 'port' | 'database' | 'server';
 }
 
-function saveAddChangesToJSON(changedNode: EcoreNode) {
+async function saveAddChangesToJSON(changedNode: EcoreNode) {
 	if (pathExists(file!) && file) {
 		const vcoreString = fs.readFileSync(file, "utf8");
 		let json = parseJgenJson(vcoreString);
@@ -1387,6 +986,31 @@ function saveAddChangesToJSON(changedNode: EcoreNode) {
 		let newChild;
 		switch (changedNode.type) {
 			case "project":
+				break;
+			case "enum":
+				const newENUMJSON = `{
+					"${key}": {
+						"id": "${changedNode.getId()}",
+						"name": "${changedNode.getName()}",
+						"literals": []
+					}
+				}`;
+				// newChild = parseJgenJson(newAttributeJSON);
+				newChild = parse(newENUMJSON);
+				addChildNode(json, newChild, changedNode);
+				break;
+			case "literal":
+				const newLiteralValue = await vscode.window.showInputBox({ prompt: `New Literal Value: ` });
+				const newLiteralJSON = `{
+					"${key}": {
+						"id": "${changedNode.getId()}",
+						"name": "${changedNode.getName()}",
+						"value": "${newLiteralValue}"
+					}
+				}`;
+				// newChild = parseJgenJson(newAttributeJSON);
+				newChild = parse(newLiteralJSON);
+				addChildNode(json, newChild, changedNode);
 				break;
 			// case "VPackage":
 			// 	const newPackage = `{
@@ -1411,7 +1035,8 @@ function saveAddChangesToJSON(changedNode: EcoreNode) {
 					}
 				}`;
 
-				newChild = parseJgenJson(newClassJSON);
+				// newChild = parseJgenJson(newAttributeJSON);
+				newChild = parse(newClassJSON);
 				addChildNode(json, newChild, changedNode);
 				break;
 			// case "relationship":
@@ -1437,30 +1062,36 @@ function saveAddChangesToJSON(changedNode: EcoreNode) {
 			// 	addChildNode(json, newChild, changedNode);
 			// 	break;
 			case "attribute":
+				const newAttributeType = await vscode.window.showInputBox({ prompt: `New Attribute Type: ` });
 				const newAttributeJSON = `{
 					"${key}": {
 						"id": "${changedNode.getId()}",
 						"name": "${changedNode.getName()}",
-						"type": "Integer"
+						"type": "${newAttributeType}"
 					}
 				}`;
 
-				newChild = parseJgenJson(newAttributeJSON);
+				// newChild = parseJgenJson(newAttributeJSON);
+				newChild = parse(newAttributeJSON);
+				// console.log("new att this is :", parseJSONToJgenFormat(newChild));
 				addChildNode(json, newChild, changedNode);
 				break;
 			default:
 				break;
 		}
 
-
 		//write in File
-		fs.writeFile(file, JSON.stringify(json, null, 4), 'utf8', (err) => {
+		let content = parseJSONToJgenFormat(json!);
+		fs.writeFile(file, content, 'utf8', (err) => {
 			if (err) {
 				console.error(err);
 				return;
-			}
+			};
+			refreshTreeView();
 			console.log('JSON data has been written to file successfully.');
 		});
+
+
 	}
 }
 
@@ -1478,9 +1109,9 @@ function saveRenameDeleteChangesToJSON(operation: string, changedNode: EcoreNode
 			case "rename":
 				json = renameNode(json, changedNode);
 				break;
-			// case "delete":
-			// 	json = deleteNode(json, changedNode);
-			// 	break;
+			case "delete":
+				json = deleteNode(json, changedNode);
+				break;
 			default:
 				break;
 		}
@@ -1492,6 +1123,8 @@ function saveRenameDeleteChangesToJSON(operation: string, changedNode: EcoreNode
 				console.error(err);
 				return;
 			}
+			// Refresh the tree view
+			refreshTreeView();
 			console.log('JSON data has been written to file successfully.');
 		});
 	}
@@ -1506,6 +1139,16 @@ function renameNode(json: any, node: EcoreNode): any {
 		setJsonName(json, node.getName());
 	}
 	else {
+		if (json.hasOwnProperty("project") && json.project.hasOwnProperty("enums")) {
+			for (let childJSON of json.project.enums) {
+				childJSON = renameNode(childJSON, node);
+			}
+		}
+		else if (json.hasOwnProperty("enum") && json.enum.hasOwnProperty("literals")) {
+			for (let childJSON of json.enum.literals) {
+				childJSON = renameNode(childJSON, node);
+			}
+		}
 		if (json.hasOwnProperty("project") && json.project.hasOwnProperty("entities")) {
 			for (let childJSON of json.project.entities) {
 				childJSON = renameNode(childJSON, node);
@@ -1516,6 +1159,7 @@ function renameNode(json: any, node: EcoreNode): any {
 				childJSON = renameNode(childJSON, node);
 			}
 		}
+		
 		else {
 			console.log("not found");
 		}
@@ -1523,11 +1167,77 @@ function renameNode(json: any, node: EcoreNode): any {
 	return json;
 }
 
-//
+function deleteNode(json: any, node: EcoreNode) {
+	let jsonID = getJsonID(json);
+	let found = false;
+	if (jsonID === node.getId()) {
+		console.log("found");
+		//if(node.type == "VModel"){
+		//	delete json["VPackage"];
+		//}		 
+		//else
+		delete json[node.type];
+	}
+	else {
+		if (json.hasOwnProperty("project") && json.project.hasOwnProperty("enums")) {
+			for (let childJSON of json.project.enums) {
+				childJSON = deleteNode(childJSON, node);
+				if (found)
+					{break;}
+			}
+		}
+		else if (json.hasOwnProperty("enum") && json.enum.hasOwnProperty("literals")) {
+			for (let childJSON of json.enum.literals) {
+				childJSON = deleteNode(childJSON, node);
+				// if (found)
+				// 	{break;}
+			}
+		}
+		if (json.hasOwnProperty("project") && json.project.hasOwnProperty("entities")) {
+			for (let childJSON of json.project.entities) {
+				childJSON = deleteNode(childJSON, node);
+				if (found)
+					{break;}
+			}
+		}
+		else if (json.hasOwnProperty("entity") && json.entity.hasOwnProperty("attributes")) {
+			for (let childJSON of json.entity.attributes) {
+				childJSON = deleteNode(childJSON, node);
+				if (found)
+					{break;}
+			}
+		}
+		else {
+			console.log("ERROR DELETE: not found");
+		}
+	}
+	//remove empty {} from json
+	cleanJSON(json);
+
+	//console.log("deleteNode in  json " + node.getID() );
+	//console.log(json);
+	return json;
+}
+
+function cleanJSON(json: any) {
+	if (json.hasOwnProperty("project"))
+	{
+			json.project.enums = json.project.enums.filter((elem: {}) => Object.keys(elem).length !== 0);
+			json.project.entities = json.project.entities.filter((elem: {}) => Object.keys(elem).length !== 0);
+	}
+	else if (json.hasOwnProperty("enum"))
+		{json.enum.literals = json.enum.literals.filter((elem: {}) => Object.keys(elem).length !== 0);}
+	else if (json.hasOwnProperty("entity"))
+		{json.entity.attributes = json.entity.attributes.filter((elem: {}) => Object.keys(elem).length !== 0);}
+}
 
 function getJsonID(json: any) {
 	let jsonID = "";
 	if (json.hasOwnProperty("project")) { jsonID = json.project.id; }
+
+	else if (json.hasOwnProperty("enum")) { jsonID = json.enum.id; }
+	else if (json.hasOwnProperty("literal")) { jsonID = json.literal.id; }
+
 	else if (json.hasOwnProperty("entity")) { jsonID = json.entity.id; }
 	else if (json.hasOwnProperty("attribute")) { jsonID = json.attribute.id; }
 	else if (json.hasOwnProperty("relationship")) { jsonID = json.relationship.id; }
@@ -1544,6 +1254,10 @@ function getJsonID(json: any) {
 
 function setJsonName(json: any, newName: string) {
 	if (json.hasOwnProperty("project")) { json.project.name = newName; }
+
+	else if (json.hasOwnProperty("enum")) { json.enum.name = newName; }
+	else if (json.hasOwnProperty("literal")) { json.literal.name = newName; }
+
 	else if (json.hasOwnProperty("entity")) { json.entity.name = newName; }
 	else if (json.hasOwnProperty("attribute")) { json.attribute.name = newName; }
 	// else if (json.hasOwnProperty("relationship"))
@@ -1572,6 +1286,7 @@ function addChildNode(json: any, child: any, node: EcoreNode): any {
 	}
 	else {
 		if (json.hasOwnProperty("project")) {
+
 			if (json.project.hasOwnProperty("entities")) {
 				for (let childJSON of json.project.entities) {
 					childJSON = addChildNode(childJSON, child, node);
@@ -1579,6 +1294,26 @@ function addChildNode(json: any, child: any, node: EcoreNode): any {
 			}
 			else {
 				json.project.entities = [];
+			};
+
+			if (json.project.hasOwnProperty("enums")) {
+				for (let childJSON of json.project.enums) {
+					childJSON = addChildNode(childJSON, child, node);
+				}
+			}
+			else {
+				json.project.enums = [];
+			};
+
+		}
+		else if (json.hasOwnProperty("enum")) {
+			if (json.enum.hasOwnProperty("literals")) {
+				for (let childJSON of json.enum.literals) {
+					childJSON = addChildNode(childJSON, child, node);
+				}
+			}
+			else {
+				json.enum.literals = [];
 			}
 		}
 		else if (json.hasOwnProperty("entity")) {
@@ -1599,6 +1334,13 @@ function addChildNode(json: any, child: any, node: EcoreNode): any {
 }
 
 function pushChild(json: any, child: any, node: EcoreNode) {
-	if (json.hasOwnProperty("project")) { json.project.entities.push(child); }
+	if (json.hasOwnProperty("project")) {
+		if(child.hasOwnProperty("enum")) {
+			json.project.enums.push(child); 
+		} else if(child.hasOwnProperty("entity")) {
+			json.project.entities.push(child); 
+		}
+	}
 	else if (json.hasOwnProperty("entity")) { json.entity.attributes.push(child); }
+	else if (json.hasOwnProperty("enum")) { json.enum.literals.push(child); }
 }
