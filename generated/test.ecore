@@ -6,10 +6,10 @@
                  xmlns:xmi="http://www.omg.org/XMI"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
-                 name="MySpringApp">
+                 name="Demo">
     <eClassifiers xsi:type="ecore:EClass" name="User">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id"/>
-<eStructuralFeatures xsi:type="ecore:EAttribute" name="username"/>
+<eStructuralFeatures xsi:type="ecore:EAttribute" name="fullname"/>
 <eStructuralFeatures xsi:type="ecore:EAttribute" name="email"/>
 <eStructuralFeatures xsi:type="ecore:EAttribute" name="role"/>
     </eClassifiers>

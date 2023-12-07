@@ -68,6 +68,10 @@ export async function activate(context: vscode.ExtensionContext) {
 						}
 
 						file = filePath;
+						// Open the newly created file in VS Code
+						vscode.workspace.openTextDocument(filePath).then(doc => {
+							vscode.window.showTextDocument(doc);
+						});
 
 						context.subscriptions.splice(context.subscriptions.indexOf(mytreeView), 1);
 						extensionContext = context;

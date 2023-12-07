@@ -124,7 +124,7 @@ export interface Literal extends AstNode {
     readonly $container: Enum;
     readonly $type: 'Literal';
     name: string
-    value?: string
+    value: string
 }
 
 export const Literal = 'Literal';

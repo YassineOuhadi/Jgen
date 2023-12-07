@@ -100,7 +100,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               "arguments": []
             },
-            "cardinality": "+"
+            "cardinality": "*"
           }
         ]
       },
@@ -1049,7 +1049,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               "arguments": []
             },
-            "cardinality": "+"
+            "cardinality": "*"
           }
         ]
       },
@@ -1083,26 +1083,20 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             }
           },
           {
-            "$type": "Group",
-            "elements": [
-              {
-                "$type": "Keyword",
-                "value": "value"
+            "$type": "Keyword",
+            "value": "value"
+          },
+          {
+            "$type": "Assignment",
+            "feature": "value",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@34"
               },
-              {
-                "$type": "Assignment",
-                "feature": "value",
-                "operator": "=",
-                "terminal": {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@34"
-                  },
-                  "arguments": []
-                }
-              }
-            ],
-            "cardinality": "?"
+              "arguments": []
+            }
           }
         ]
       },

@@ -7,7 +7,7 @@ project Demo
 
 	entity User
 		attribute id type Long primaryKey
-		attribute username type String
+		attribute fullname type String
 		attribute email type String
 		attribute role type Roles
 
@@ -30,7 +30,7 @@ project Demo
 		query modifyUsername
 			type UPDATE
 			parameter id is id
-			parameter username is username
+			parameter username is fullname
 
 	service userService for User
 		repository userRepository

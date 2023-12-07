@@ -7,7 +7,7 @@ entry Project:
 
 Entity:
     'entity' name=ID
-    (attributes+=Attribute)+;
+    (attributes+=Attribute)*;
 
 Attribute:
     'attribute' name=ID 'type' (enumType=[Enum] | type=DATATYPE) (nullable?='nullable')? (primaryKey?='primaryKey')?;
@@ -65,10 +65,10 @@ Query:
 
 Enum:
     'enum' name=ID
-    (literals+=Literal)+;
+    (literals+=Literal)*;
 
 Literal:
-    'literal' name=ID ('value' value=ID)?;
+    'literal' name=ID 'value' value=ID;
     
 Configuration:
     'configuration'
