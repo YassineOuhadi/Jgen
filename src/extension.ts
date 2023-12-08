@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from "fs";
-import { EcoreTreeDataProvider, EcoreModel, EcoreNode } from "./treeview";
+import { TreeDataProvider, Model, Node } from "./treeview";
 import * as path from "path";
 import { MyMenuButtonsProvider } from './models/selectFileButton';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
@@ -9,9 +9,9 @@ import { parse } from 'jsonc-parser';
 
 let client: LanguageClient;
 export let file = "";
-let model: EcoreModel;
-let ecoreTreeDataProvider: EcoreTreeDataProvider;
-let treeView: vscode.TreeView<EcoreNode>;
+let model: Model;
+let ecoreTreeDataProvider: TreeDataProvider;
+let treeView: vscode.TreeView<Node>;
 
 let extensionContext: vscode.ExtensionContext;
 
@@ -77,7 +77,7 @@ export async function activate(context: vscode.ExtensionContext) {
 						extensionContext = context;
 						model = convertJsonToEcoreModel(file);
 
-						ecoreTreeDataProvider = new EcoreTreeDataProvider(model);
+						ecoreTreeDataProvider = new TreeDataProvider(model);
 
 						vscode.commands.registerCommand('JGEN.refreshEntry', () => {
 							// Refresh the tree view
@@ -132,14 +132,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		});
 	}));
 
-	// create new file button
-
-	//import file button
+    // ..
 }
 
 function refreshTreeView() {
 	model = convertJsonToEcoreModel(file);
-	ecoreTreeDataProvider = new EcoreTreeDataProvider(model);
+	ecoreTreeDataProvider = new TreeDataProvider(model);
 	vscode.window.registerTreeDataProvider('jgenView', ecoreTreeDataProvider);
 	treeView = vscode.window.createTreeView('jgenView', { treeDataProvider: ecoreTreeDataProvider });
 	extensionContext.subscriptions.push(treeView);
@@ -150,7 +148,7 @@ function refreshTreeView() {
 async function vscodeMDE(context: vscode.ExtensionContext) {
 	context.subscriptions.push(treeView.onDidChangeSelection(async (event) => {
 		if (event.selection.length > 0) {
-			const selectedNode: EcoreNode = event.selection[0];
+			const selectedNode: Node = event.selection[0];
 			console.log("selected node", selectedNode);
 			const actions = [];
 
@@ -237,7 +235,7 @@ async function vscodeMDE(context: vscode.ExtensionContext) {
 	//rename node
 	commandName = 'JGEN.rename';
 	if (!existingCommands.includes(commandName)) {
-		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: Node) => {
 			const result = await vscode.window.showInputBox({ prompt: `Rename ${node.getName()}` });
 			if (result) {
 				node.setName(result);
@@ -253,7 +251,7 @@ async function vscodeMDE(context: vscode.ExtensionContext) {
 	//delete node
 	commandName = 'JGEN.delete';
 	if (!existingCommands.includes(commandName)) {
-		context.subscriptions.push(vscode.commands.registerCommand(commandName, (node: EcoreNode) => {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, (node: Node) => {
 			vscode.window.showInformationMessage(`Delete ${node.getName()}`);
 			const hasparent = node.getParent();
 			if (hasparent) {
@@ -308,7 +306,7 @@ async function vscodeMDE(context: vscode.ExtensionContext) {
 									context.subscriptions.splice(context.subscriptions.indexOf(treeView), 1);
 									model = convertJsonToEcoreModel(filePath);
 
-									ecoreTreeDataProvider = new EcoreTreeDataProvider(model);
+									ecoreTreeDataProvider = new TreeDataProvider(model);
 									vscode.window.registerTreeDataProvider('exampleView', ecoreTreeDataProvider);
 
 									treeView = vscode.window.createTreeView('exampleView', { treeDataProvider: ecoreTreeDataProvider });
@@ -327,10 +325,10 @@ async function vscodeMDE(context: vscode.ExtensionContext) {
 	// Add enum
 	commandName = 'JGEN.addEnum';
 	if (!existingCommands.includes(commandName)) {
-		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: Node) => {
 			vscode.window.showInformationMessage(`Add Enum`);
 			const newname = await vscode.window.showInputBox({ prompt: `New Enum Name: ` });
-			let newEnum= new EcoreNode('enum', newname ? newname : 'New Enum');
+			let newEnum= new Node('enum', newname ? newname : 'New Enum');
 			newEnum.setParent(node);
 			node.getChildren().push(newEnum);
 			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
@@ -343,10 +341,10 @@ async function vscodeMDE(context: vscode.ExtensionContext) {
 	// Add literal
 	commandName = 'JGEN.addLiteral';
 	if (!existingCommands.includes(commandName)) {
-		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: Node) => {
 			vscode.window.showInformationMessage(`Add Literal`);
 			const newname = await vscode.window.showInputBox({ prompt: `New Literal Name: ` });
-			let newLiteral = new EcoreNode('literal', newname ? newname : 'New Literal');
+			let newLiteral = new Node('literal', newname ? newname : 'New Literal');
 			newLiteral.setParent(node);
 			node.getChildren().push(newLiteral);
 			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
@@ -359,10 +357,10 @@ async function vscodeMDE(context: vscode.ExtensionContext) {
 	// Add entity
 	commandName = 'JGEN.addEntity';
 	if (!existingCommands.includes(commandName)) {
-		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: Node) => {
 			vscode.window.showInformationMessage(`Add Entity`);
 			const newname = await vscode.window.showInputBox({ prompt: `New Entity Name: ` });
-			let newEntity= new EcoreNode('entity', newname ? newname : 'New Entity');
+			let newEntity= new Node('entity', newname ? newname : 'New Entity');
 			newEntity.setParent(node);
 			node.getChildren().push(newEntity);
 			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
@@ -375,10 +373,10 @@ async function vscodeMDE(context: vscode.ExtensionContext) {
 	// Add attribute
 	commandName = 'JGEN.addAttribute';
 	if (!existingCommands.includes(commandName)) {
-		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: EcoreNode) => {
+		context.subscriptions.push(vscode.commands.registerCommand(commandName, async (node: Node) => {
 			vscode.window.showInformationMessage(`Add Attribute`);
 			const newname = await vscode.window.showInputBox({ prompt: `New Attribute Name: ` });
-			let newAttribute = new EcoreNode('attribute', newname ? newname : 'New Attribute');
+			let newAttribute = new Node('attribute', newname ? newname : 'New Attribute');
 			newAttribute.setParent(node);
 			node.getChildren().push(newAttribute);
 			ecoreTreeDataProvider.getonDidChangeTreeData().fire;
@@ -481,25 +479,24 @@ function startLanguageClient(context: vscode.ExtensionContext): LanguageClient {
 	return client;
 }
 
-function convertJsonToEcoreModel(selectFile: string): EcoreModel {
+function convertJsonToEcoreModel(selectFile: string): Model {
 	if (pathExists(selectFile!) && selectFile) {
 		let vcoreString = fs.readFileSync(selectFile, "utf8");
 		//const vcoreString = fs.readFileSync(selectedFile[0].fsPath, "utf8");
 
-		const jsonRepresentation = parseJgenJson(vcoreString);
+		
 
 		try {
 
-			//const json = parse(vcoreString);
+			let json = parseJgenJson(vcoreString);
 			//let json = JSON.stringify(jsonRepresentation, null, 4);
-			let json = jsonRepresentation;
 			console.log("json is :", json);
 
 			// const vcoreModel = this.convertJsonToModel(vcoreJson);
 			if (!json) {
 				vscode.window.showErrorMessage("JSON undefined");
 				console.log("JSON undefined : " + json);
-				return new EcoreModel([]);
+				return new Model([]);
 			}
 			else {
 				const model = transformJsonToTree(json);
@@ -508,33 +505,33 @@ function convertJsonToEcoreModel(selectFile: string): EcoreModel {
 		} catch (error) {
 			vscode.window.showErrorMessage("An error occurred while parsing the JSON file");
 
-			return new EcoreModel([]);
+			return new Model([]);
 		}
 	} else {
-		return new EcoreModel([
-			new EcoreNode('project', 'EModel', [
-				new EcoreNode('entity', 'My Class', [
-					new EcoreNode('attribute', 'My Attribute'),
-					// new EcoreNode('VReference', 'My Reference'),
-					// new EcoreNode('VDataType', 'My Data Type'),
+		return new Model([
+			new Node('project', 'EModel', [
+				new Node('entity', 'My Class', [
+					new Node('attribute', 'My Attribute'),
+					// new Node('VReference', 'My Reference'),
+					// new Node('VDataType', 'My Data Type'),
 				]),
-				new EcoreNode('entity', 'entity 2')]),
+				new Node('entity', 'entity 2')]),
 		]);
 	}
 }
 
-function transformJsonToTree(json: any): EcoreModel {
+function transformJsonToTree(json: any): Model {
 	//let i = 1;
-	// Create the root EcoreNode
+	// Create the root Node
 	const key = getChildKey(json);
 	const name = json[key].name;
 
-	const root = new EcoreNode('project', name);
+	const root = new Node('project', name);
 	// root.setId((i++).toString());
 	root.setId(json[key].id);
 
 	// Create a recursive function to traverse the JSON object
-	function parseJson(node: EcoreNode, json: any) {
+	function parseJson(node: Node, json: any) {
 
 		let lastId = 0;
 
@@ -542,7 +539,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.project.enums.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
@@ -555,7 +552,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.enum.literals.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
@@ -570,7 +567,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.project.entities.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
@@ -583,7 +580,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.entity.attributes.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				// childNode.setId((i++).toString());
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
@@ -598,7 +595,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.project.relationships.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name; // ?
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -607,13 +604,13 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("relationship") && json.relationship.hasOwnProperty("from") && json.relationship.hasOwnProperty("to")) {
-			let fromChildNode = new EcoreNode('from', json.relationship.from);
+			let fromChildNode = new Node('from', json.relationship.from);
 			fromChildNode.setId((lastId++).toString());
 			fromChildNode.setParent(node);
 			node.getChildren().push(fromChildNode);
 			parseJson(fromChildNode, json.relationship.from);
 
-			let toChildNode = new EcoreNode('to', json.relationship.to);
+			let toChildNode = new Node('to', json.relationship.to);
 			toChildNode.setId((lastId++).toString());
 			toChildNode.setParent(node);
 			node.getChildren().push(toChildNode);
@@ -621,7 +618,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("relationship") && json.relationship.hasOwnProperty("type")) {
-			let childNode = new EcoreNode('type', json.relationship.type);
+			let childNode = new Node('type', json.relationship.type);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -633,7 +630,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.project.repositories.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -642,7 +639,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("repository") && json.repository.hasOwnProperty("entity")) {
-			let childNode = new EcoreNode('entity', json.repository.entity);
+			let childNode = new Node('entity', json.repository.entity);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -652,7 +649,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.repository.queries.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -661,7 +658,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("query") && json.query.hasOwnProperty("type")) {
-			let childNode = new EcoreNode('type', json.query.type);
+			let childNode = new Node('type', json.query.type);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -671,7 +668,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.query.parameters.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -680,7 +677,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("parameter") && json.parameter.hasOwnProperty("attribute")) {
-			let childNode = new EcoreNode('attribute', json.parameter.attribute);
+			let childNode = new Node('attribute', json.parameter.attribute);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -693,7 +690,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.project.services.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -702,14 +699,14 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("service") && json.service.hasOwnProperty("entity")) {
-			let childNode = new EcoreNode('entity', json.service.entity);
+			let childNode = new Node('entity', json.service.entity);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
 
 		if (json.hasOwnProperty("service") && json.service.hasOwnProperty("repository")) {
-			let childNode = new EcoreNode('repository', json.service.repository);
+			let childNode = new Node('repository', json.service.repository);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -719,7 +716,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.service.methods.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -731,7 +728,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.method.parameters.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -745,7 +742,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.project.controllers.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -754,21 +751,21 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("controller") && json.controller.hasOwnProperty("entity")) {
-			let childNode = new EcoreNode('entity', json.controller.entity);
+			let childNode = new Node('entity', json.controller.entity);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
 
 		if (json.hasOwnProperty("controller") && json.controller.hasOwnProperty("service")) {
-			let childNode = new EcoreNode('service', json.controller.service);
+			let childNode = new Node('service', json.controller.service);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
 		}
 
 		if (json.hasOwnProperty("controller") && json.controller.hasOwnProperty("path")) {
-			let childNode = new EcoreNode('path', json.controller.path);
+			let childNode = new Node('path', json.controller.path);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -779,7 +776,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.controller.routes.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -788,7 +785,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("route") && json.route.hasOwnProperty("path")) {
-			let childNode = new EcoreNode('path', json.route.path);
+			let childNode = new Node('path', json.route.path);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -796,7 +793,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("route") && json.route.hasOwnProperty("operation")) {
-			let childNode = new EcoreNode('operation', json.route.operation);
+			let childNode = new Node('operation', json.route.operation);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -807,7 +804,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.route.requestParameters.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -816,7 +813,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("requestParameter") && json.requestParameter.hasOwnProperty("attribute")) {
-			let childNode = new EcoreNode('attribute', json.requestParameter.attribute);
+			let childNode = new Node('attribute', json.requestParameter.attribute);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -824,7 +821,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("route") && json.route.hasOwnProperty("requestBody") && json.route.requestBody !== null) {
-			let childNode = new EcoreNode('requestBody', json.route.requestBody.name); //?
+			let childNode = new Node('requestBody', json.route.requestBody.name); //?
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -835,7 +832,7 @@ function transformJsonToTree(json: any): EcoreModel {
 			json.parameters.forEach((child: any) => {
 				let child_key = getChildKey(child);
 				let child_name = child[child_key].name;
-				let childNode = new EcoreNode(child_key, child_name);
+				let childNode = new Node(child_key, child_name);
 				childNode.setId(child[child_key].id);
 				childNode.setParent(node);
 				node.getChildren().push(childNode);
@@ -849,7 +846,7 @@ function transformJsonToTree(json: any): EcoreModel {
 
 		if (json.hasOwnProperty("project") && json.project.hasOwnProperty("configuration")) {
 			lastId = json.project.configuration.server.id;
-			let childNode = new EcoreNode('configuration', json.project.configuration.name); // name??
+			let childNode = new Node('configuration', json.project.configuration.name); // name??
 			childNode.setId(json.project.configuration.id);
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -857,7 +854,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("metadata")) {
-			let childNode = new EcoreNode('metadata', json.metadata.name); // name??
+			let childNode = new Node('metadata', json.metadata.name); // name??
 			childNode.setId(json.metadata.id);
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -865,7 +862,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("buildTool")) {
-			let childNode = new EcoreNode('buildTool', json.buildTool);
+			let childNode = new Node('buildTool', json.buildTool);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -873,7 +870,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("springVersion")) {
-			let childNode = new EcoreNode('springVersion', json.springVersion);
+			let childNode = new Node('springVersion', json.springVersion);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -881,7 +878,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("package")) {
-			let childNode = new EcoreNode('package', json.package);
+			let childNode = new Node('package', json.package);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -889,7 +886,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("packaging")) {
-			let childNode = new EcoreNode('packaging', json.packaging);
+			let childNode = new Node('packaging', json.packaging);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -897,7 +894,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("javaVersion")) {
-			let childNode = new EcoreNode('javaVersion', (json.javaVersion).toString());
+			let childNode = new Node('javaVersion', (json.javaVersion).toString());
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -905,7 +902,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("datasource")) {
-			let childNode = new EcoreNode('datasource', json.datasource.name); // name??
+			let childNode = new Node('datasource', json.datasource.name); // name??
 			childNode.setId(json.datasource.id);
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -913,7 +910,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("type")) {
-			let childNode = new EcoreNode('type', json.type);
+			let childNode = new Node('type', json.type);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -921,7 +918,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("host")) {
-			let childNode = new EcoreNode('host', json.host);
+			let childNode = new Node('host', json.host);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -929,7 +926,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("port")) {
-			let childNode = new EcoreNode('port', (json.port).toString());
+			let childNode = new Node('port', (json.port).toString());
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -937,7 +934,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("database")) {
-			let childNode = new EcoreNode('database', json.database);
+			let childNode = new Node('database', json.database);
 			childNode.setId((lastId++).toString());
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -945,7 +942,7 @@ function transformJsonToTree(json: any): EcoreModel {
 		}
 
 		if (json.hasOwnProperty("server")) {
-			let childNode = new EcoreNode('server', json.server.name); // name??
+			let childNode = new Node('server', json.server.name); // name??
 			childNode.setId(json.server.id);
 			childNode.setParent(node);
 			node.getChildren().push(childNode);
@@ -957,7 +954,7 @@ function transformJsonToTree(json: any): EcoreModel {
 
 	// Call the recursive function to traverse the JSON object
 	parseJson(root, json);
-	let model = new EcoreModel([root]);
+	let model = new Model([root]);
 	return model;
 }
 
@@ -979,7 +976,7 @@ function getChildKey(child: any) {
 		'package' | 'packaging' | 'javaVersion' | 'datasource' | 'host' | 'port' | 'database' | 'server';
 }
 
-async function saveAddChangesToJSON(changedNode: EcoreNode) {
+async function saveAddChangesToJSON(changedNode: Node) {
 	if (pathExists(file!) && file) {
 		const vcoreString = fs.readFileSync(file, "utf8");
 		let json = parseJgenJson(vcoreString);
@@ -1099,7 +1096,7 @@ async function saveAddChangesToJSON(changedNode: EcoreNode) {
 	}
 }
 
-function saveRenameDeleteChangesToJSON(operation: string, changedNode: EcoreNode, parentNode?: EcoreNode) {
+function saveRenameDeleteChangesToJSON(operation: string, changedNode: Node, parentNode?: Node) {
 	if (pathExists(file!) && file) {
 		console.log("file path is", file);
 		const vcoreString = fs.readFileSync(file, "utf8");
@@ -1134,7 +1131,7 @@ function saveRenameDeleteChangesToJSON(operation: string, changedNode: EcoreNode
 	}
 }
 
-function renameNode(json: any, node: EcoreNode): any {
+function renameNode(json: any, node: Node): any {
 	let jsonID = getJsonID(json);
 	console.log("json id is", getJsonID(json));
 	console.log("node id is", node.getId());
@@ -1171,7 +1168,7 @@ function renameNode(json: any, node: EcoreNode): any {
 	return json;
 }
 
-function deleteNode(json: any, node: EcoreNode) {
+function deleteNode(json: any, node: Node) {
 	let jsonID = getJsonID(json);
 	let found = false;
 	if (jsonID === node.getId()) {
@@ -1275,7 +1272,7 @@ function setJsonName(json: any, newName: string) {
 	else if (json.hasOwnProperty("method")) { json.method.name = newName; }
 }
 
-function addChildNode(json: any, child: any, node: EcoreNode): any {
+function addChildNode(json: any, child: any, node: Node): any {
 	if (!node.getParent()) {
 		console.log("ERROR ADD: no parent");
 		return;
@@ -1337,7 +1334,7 @@ function addChildNode(json: any, child: any, node: EcoreNode): any {
 	return json;
 }
 
-function pushChild(json: any, child: any, node: EcoreNode) {
+function pushChild(json: any, child: any, node: Node) {
 	if (json.hasOwnProperty("project")) {
 		if(child.hasOwnProperty("enum")) {
 			json.project.enums.push(child); 

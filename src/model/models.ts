@@ -1,5 +1,3 @@
-// package
-// class
 import * as vscode from "vscode";
 
 export class JgenNode extends vscode.TreeItem {
@@ -45,10 +43,9 @@ export class JgenNode extends vscode.TreeItem {
     | "server";
     // | "host"
     // | "port"
+
   public readonly name: string;
-
   // public readonly value: any;
-
   public readonly children: JgenNode[];
 
   constructor(type: any, name: any, children: JgenNode[] = []) {

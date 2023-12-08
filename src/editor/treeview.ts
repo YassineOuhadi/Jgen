@@ -15,7 +15,6 @@ export class VcoreTreeDataProvider
   }
   getTreeItem(element: JgenNode): vscode.TreeItem {
     switch (element.type) {
-
       case "enum":
         return {
           label: element.name,
@@ -47,7 +46,6 @@ export class VcoreTreeDataProvider
           contextValue: "relationship",
 
         };
-      
       case "from":
         return {
           label: element.name,
@@ -134,9 +132,6 @@ export class VcoreTreeDataProvider
           collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
           contextValue: "requestBody",
         };
-      
-      //
-
       case "configuration":
         return {
           label: element.name,
@@ -173,7 +168,7 @@ export class VcoreTreeDataProvider
           collapsibleState: vscode.TreeItemCollapsibleState.None,
           contextValue: "artifact",
         };
-      case "name": // is the project name, already exist; the fisrt node!
+      case "name": // is the project name, already exist; the first node!
         return {
           label: element.name,
           collapsibleState: vscode.TreeItemCollapsibleState.None,
@@ -241,7 +236,6 @@ export class VcoreTreeDataProvider
         };
       // host
       // port
-
       default:
         return {
           label: "Unknown Element",
@@ -263,14 +257,14 @@ export class VcoreTreeDataProvider
 
     if (element) {
       return Promise.resolve(
-        this.getJcoreModel(
+        this.getJgenModel(
           path.join(workspaceRoot, "test.model")
         )
       );
     } else {
       const packageJsonPath = path.join(workspaceRoot, "test.model");
       if (this.pathExists(packageJsonPath)) {
-        return Promise.resolve(this.getJcoreModel(packageJsonPath));
+        return Promise.resolve(this.getJgenModel(packageJsonPath));
       } else {
         vscode.window.showInformationMessage("Workspace has no test.model");
         return Promise.resolve([]);
@@ -278,7 +272,7 @@ export class VcoreTreeDataProvider
     }
   }
 
-  private getJcoreModel(JcorePath: string): any {
+  private getJgenModel(JcorePath: string): any {
     const workspaceRoot =
       vscode.workspace.workspaceFolders &&
         vscode.workspace.workspaceFolders.length > 0
@@ -286,16 +280,13 @@ export class VcoreTreeDataProvider
         : undefined;
     if (this.pathExists(JcorePath) && workspaceRoot) {
       const jcoreString = fs.readFileSync(JcorePath, "utf8");
-
       const vcoreJson = parseJgenJson(jcoreString);
-
-      // const vcoreModel = this.convertJsonToModel(vcoreJson);
-      console.log(jcoreString);
       return vcoreJson;
     } else {
       return [];
     }
   }
+  
   // private convertJsonToModel(json: any): VcoreNode[] {
   //   let vcoreModel: VcoreNode[] = [];
 

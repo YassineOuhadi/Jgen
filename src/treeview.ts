@@ -7,11 +7,11 @@ import { parse } from 'jsonc-parser';
 //   value: any;
 // }
 
-export class EcoreTreeDataProvider implements vscode.TreeDataProvider<EcoreNode> {
-  private _onDidChangeTreeData: vscode.EventEmitter<EcoreNode | undefined> = new vscode.EventEmitter<EcoreNode | undefined>();
-  readonly onDidChangeTreeData: vscode.Event<EcoreNode | undefined> = this._onDidChangeTreeData.event;
+export class TreeDataProvider implements vscode.TreeDataProvider<Node> {
+  private _onDidChangeTreeData: vscode.EventEmitter<Node | undefined> = new vscode.EventEmitter<Node | undefined>();
+  readonly onDidChangeTreeData: vscode.Event<Node | undefined> = this._onDidChangeTreeData.event;
 
-  constructor(private readonly ecoreModel: EcoreModel) {this.ecoreModel=ecoreModel;}
+  constructor(private readonly ecoreModel: Model) {this.ecoreModel=ecoreModel;}
 
   //constructor() { }
 
@@ -28,7 +28,7 @@ export class EcoreTreeDataProvider implements vscode.TreeDataProvider<EcoreNode>
     return element;
   }
   */
-  getTreeItem(element: EcoreNode): vscode.TreeItem {
+  getTreeItem(element: Node): vscode.TreeItem {
     let elementType, elementName;
     (( element.type === "entity" || element.type === "repository" || element.type === "service" ) && ( element.getParent()?.type !== "project" )) ?  elementType = "reference" : elementType = element.type;
     if (!element.getName() || element.getName()?.trim() === '') {
@@ -259,7 +259,7 @@ export class EcoreTreeDataProvider implements vscode.TreeDataProvider<EcoreNode>
   }
 
 
-  getChildren(element?: EcoreNode): vscode.ProviderResult<EcoreNode[]> {
+  getChildren(element?: Node): vscode.ProviderResult<Node[]> {
     // If no element is provided, return the root nodes of the model
     if (!element) {
       return this.ecoreModel.rootNodes;
@@ -285,10 +285,10 @@ export class EcoreTreeDataProvider implements vscode.TreeDataProvider<EcoreNode>
 
 }
 
-export class EcoreNode {
+export class Node {
   private id: string = (genUniqueId() as string);
-  private parent: EcoreNode | undefined;
-  private parameters: EcoreNode[] | undefined;
+  private parent: Node | undefined;
+  private parameters: Node[] | undefined;
 
   constructor(
     public readonly type: 'project' | 'enum' | 'literal' | 'entity' | 'attribute' |
@@ -297,7 +297,7 @@ export class EcoreNode {
       'configuration' | 'metadata' | 'buildTool' | 'springVersion' | 'group' | 'artifact' | 'name' | 'description' | 
       'package' | 'packaging' | 'javaVersion' | 'datasource' | 'host' | 'port' | 'database' | 'server',
     private name: string,
-    private children: EcoreNode[] = [],
+    private children: Node[] = [],
     id?: string
   ) {
     children.forEach((child) => child.setParent(this));
@@ -316,15 +316,15 @@ export class EcoreNode {
     return this.parameters;
   }
 
-  setParameters(parameters: EcoreNode[]) {
+  setParameters(parameters: Node[]) {
     this.parameters = parameters;
   }
 
-  setParent(parent: EcoreNode): void {
+  setParent(parent: Node): void {
     this.parent = parent;
   }
 
-  getParent(): EcoreNode | undefined {
+  getParent(): Node | undefined {
     return this.parent;
   }
 
@@ -340,7 +340,7 @@ export class EcoreNode {
     return this.children[index];
   }
 
-  setChild(index: number, child: EcoreNode) {
+  setChild(index: number, child: Node) {
     this.children[index] = child;
   }
 
@@ -348,13 +348,13 @@ export class EcoreNode {
     return this.children;
   }
 
-  setChildren(children: EcoreNode[]) {
+  setChildren(children: Node[]) {
     this.children = children;
   }
 }
 
-export class EcoreModel {
-  constructor(public readonly rootNodes: EcoreNode[]) { }
+export class Model {
+  constructor(public readonly rootNodes: Node[]) { }
 }
 
 function genUniqueId(): string {
