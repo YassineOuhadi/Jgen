@@ -6,6 +6,9 @@
         "fileExtensions": [".jgen"],
         "textMate": {
             "out": "syntaxes/jgen.tmLanguage.json"
+        },
+        "monarch": {
+            "out": "syntaxes/jgen.monarch.ts"
         }
     }],
     "out": "src/language-server/generated"
