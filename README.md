@@ -291,7 +291,7 @@ project Demo
 ## Members
 
 1. [OUHADI Yassine](https://github.com/YassineOuhadi)
-2. [HOUSSNI Badreddine](https://github.com/BADREDDINE1999)
+2. [HOUSNI Badreddine](https://github.com/BADREDDINE1999)
 3. [CHARIF Mehdi](https://github.com/mehdicharife)
 4. [ALAMI IBN JAMAA Hamza](https://github.com/Schrodingdong)
   
