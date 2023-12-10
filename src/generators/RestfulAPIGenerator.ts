@@ -1,33 +1,36 @@
 import fs from 'fs';
 import { CompositeGeneratorNode, NL, Reference, toString } from 'langium';
 import path from 'path';
-import { reflection, Entity, Attribute, Project, Metadata, Enum } from '../language-server/generated/ast';
+import { reflection, Entity, Attribute, Project, Metadata, Enum, Relationship } from '../language-server/generated/ast';
 import { extractDestinationAndName } from '../cli/cli-util';
 import xmlFormatter from 'xml-formatter';
 
+let enumLiteralCounter = 0;
+let model : Project;
 let projectPath = '';
 
-export function generateRestfulAPI(model: Project, filePath: string, destination: string | undefined): string {
+export function generateRestfulAPI(project: Project, filePath: string, destination: string | undefined): string {
+    model = project;
     const data = extractDestinationAndName(filePath, destination);
-    projectPath = path.join(data.destination, model.name);
+    projectPath = path.join(data.destination, project.name);
 
     // const fileNode = new CompositeGeneratorNode();
     // fileNode.append("// ", NL);
 
     // Initializ the project structure
-    initializrProjectStructure(model);
+    initializrProjectStructure(project);
 
     // Generate the project main part
-    generateMainStructure(model);
+    generateMainStructure(project);
 
     // Generate the project test part
-    generateTestStructure(model);
+    generateTestStructure(project);
 
     // if (!fs.existsSync(data.destination)) {
     //     fs.mkdirSync(data.destination, { recursive: true });
     // }
     // fs.writeFileSync(generatedFilePath, toString(fileNode));
-    return path.join(data.destination, model.name);
+    return path.join(data.destination, project.name);
 }
 
 function initializrProjectStructure(model: Project) {
@@ -208,14 +211,7 @@ function generateApplicationProperties(model: Project): string {
     `;
 }
 
-
-
-
-
-
-// REST Core
-
-function generateMainStructure(model: Project) {
+function generateMainStructure(model: Project) { // Generate REST Core
     const srcPath = path.join(projectPath, 'src');
     const mainPath = path.join(srcPath, 'main');
     const mainJavaPath = path.join(mainPath, 'java');
@@ -297,6 +293,8 @@ function generateDomain(entity: Entity, domainPackagePath: string): string {
         'import javax.persistence.GenerationType;',
         'import javax.persistence.Id;',
         'import javax.persistence.Table;',
+        'import javax.persistence.Column;',
+        'import lombok.Data;'
     ];
 
     const annotations = [
@@ -311,7 +309,12 @@ function generateDomain(entity: Entity, domainPackagePath: string): string {
 
     const otherFields = attributes
         .filter(attr => !attr.primaryKey)
-        .map(attr => `\n\tprivate ${attr.enumType ? attr.enumType.ref?.name : attr.type} ${attr.name};`)
+        .map(attr => `\n\t@Column(nullable = ${attr.nullable})\n\tprivate ${attr.enumType ? attr.enumType.ref?.name : attr.type} ${attr.name};`)
+        .join('\n');
+
+    const relationships = (model.structuralComponents
+        .filter(component => component.$type === 'Relationship' && component.from.ref?.name === entity.name) as Relationship[])
+        .map(generateRelationship)
         .join('\n');
 
     return `package ${domainPackagePath};
@@ -322,14 +325,24 @@ ${annotations.join('\n')}
 public class ${className} {
     ${idField}${otherFields}
 
+    // Relationships
+    ${relationships}
+
     // Add getters and setters here
 }
 `;
 }
 
+function generateRelationship(relationship: Relationship): string {
+    const mappedBy = relationship.type === 'OneToMany' ? `${relationship.to.ref?.name.toLowerCase()}` :  relationship.type === 'ManyToMany' ? `${relationship.from.ref?.name.toLowerCase()}s` : null;
+
+    const relationshipAnnotation = relationship.type !== 'ManyToOne' ? `@OneToMany(mappedBy = "${mappedBy}", cascade = CascadeType.ALL)` : `@ManyToOne(fetch = FetchType.LAZY)`;
+
+    return relationship.type === 'ManyToOne' ? `\n\t${relationshipAnnotation}\n\tprivate ${relationship.to.ref?.name} ${relationship.to.ref?.name.toLowerCase()};` : `\n\t${relationshipAnnotation}\n\tprivate List<${relationship.to.ref?.name}> ${relationship.to.ref?.name.toLowerCase()}s;`;
+}
 
 
-
+//
 
 
 // Tests
