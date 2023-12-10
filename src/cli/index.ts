@@ -7,7 +7,6 @@ import { extractAstNode } from './cli-util';
 import { generateEcore } from '../generators/EcoreGenerator';
 import { NodeFileSystem } from 'langium/node';
 import { generateRestfulAPI } from '../generators/RestfulAPIGenerator';
-// import { generateLangium } from '../generators/LangiumGenerator';
 
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createJgenServices(NodeFileSystem).Jgen;
@@ -22,12 +21,6 @@ export const generateRestfulAPIAction = async (fileName: string, opts: GenerateO
     const generatedFilePath = generateRestfulAPI(model, fileName, opts.destination);
     console.log(chalk.green(`Restful api code generated successfully: ${generatedFilePath}`));
 };
-// export const generateAction2 = async (fileName: string, opts: GenerateOptions): Promise<void> => {
-//     const services = createJgenServices(NodeFileSystem).Jgen;
-//     const model = await extractAstNode<JSpringApp>(fileName, services);
-//     // const generatedFilePath = generateLangium(model, fileName, opts.destination);
-//     console.log(chalk.green(`Ecore code generated successfully: ${generatedFilePath}`));
-// };
 
 export type GenerateOptions = {
     destination?: string;
@@ -53,12 +46,6 @@ export default function (): void {
         .option('-d, --destination <dir>', 'destination directory of generating')
         .description('generates Restful API from jgen file')
         .action(generateRestfulAPIAction);
-    // program
-    //     .command('generateLangium')
-    //     .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
-    //     .option('-d, --destination <dir>', 'destination directory of generating')
-    //     .description('generates Langium from jgen file')
-    //     .action(generateAction2);
 
     program.parse(process.argv);
 }

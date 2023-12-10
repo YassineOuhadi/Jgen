@@ -165,7 +165,6 @@ export class JgenValidator {
                 }
 
                 relationships.push({ from: fromEntityName, to: toEntityName, type: relationshipType });
-                console.log(relationships);
             }
         });
 

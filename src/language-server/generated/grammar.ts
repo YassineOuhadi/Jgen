@@ -1121,27 +1121,42 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "value": "configuration"
               },
               {
-                "$type": "RuleCall",
-                "rule": {
-                  "$ref": "#/rules@24"
-                },
-                "arguments": []
+                "$type": "Assignment",
+                "feature": "metadata",
+                "operator": "=",
+                "terminal": {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@24"
+                  },
+                  "arguments": []
+                }
               }
             ]
           },
           {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@19"
-            },
-            "arguments": []
+            "$type": "Assignment",
+            "feature": "datasource",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@19"
+              },
+              "arguments": []
+            }
           },
           {
-            "$type": "RuleCall",
-            "rule": {
-              "$ref": "#/rules@20"
-            },
-            "arguments": []
+            "$type": "Assignment",
+            "feature": "server",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@20"
+              },
+              "arguments": []
+            }
           }
         ]
       },

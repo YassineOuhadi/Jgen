@@ -72,9 +72,9 @@ Literal:
     
 Configuration:
     'configuration'
-        Metadata &
-        Datasource &
-        Server;
+        metadata = Metadata &
+        datasource = Datasource &
+        server = Server;
 
 Datasource:
     'datasource' 'type' type=DATABASE_TYPE 

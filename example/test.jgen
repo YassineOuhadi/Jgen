@@ -85,7 +85,7 @@ project Demo
 			type MySQL
 			host localhost
 			port 3306
-			database mydb
+			database jgen
 
 		server
 			host localhost

@@ -6,14 +6,6 @@
 /* eslint-disable */
 import { AstNode, AbstractAstReflection, Reference, ReferenceInfo, TypeMetaData } from 'langium';
 
-export type Configuration = Datasource | Metadata | Server;
-
-export const Configuration = 'Configuration';
-
-export function isConfiguration(item: unknown): item is Configuration {
-    return reflection.isInstance(item, Configuration);
-}
-
 export type QualifiedName = string;
 
 export type StructuralComponent = Controller | Entity | Enum | Relationship | Repository | Service;
@@ -38,6 +30,20 @@ export const Attribute = 'Attribute';
 
 export function isAttribute(item: unknown): item is Attribute {
     return reflection.isInstance(item, Attribute);
+}
+
+export interface Configuration extends AstNode {
+    readonly $container: Project;
+    readonly $type: 'Configuration';
+    datasource: Datasource
+    metadata: Metadata
+    server: Server
+}
+
+export const Configuration = 'Configuration';
+
+export function isConfiguration(item: unknown): item is Configuration {
+    return reflection.isInstance(item, Configuration);
 }
 
 export interface Controller extends AstNode {
@@ -68,7 +74,7 @@ export function isDatabase(item: unknown): item is Database {
 }
 
 export interface Datasource extends AstNode {
-    readonly $container: Project;
+    readonly $container: Configuration;
     readonly $type: 'Datasource';
     database: Database
     host: Host
@@ -134,7 +140,7 @@ export function isLiteral(item: unknown): item is Literal {
 }
 
 export interface Metadata extends AstNode {
-    readonly $container: Project;
+    readonly $container: Configuration;
     readonly $type: 'Metadata';
     artifact: string
     description: string
@@ -314,7 +320,7 @@ export function isRoute(item: unknown): item is Route {
 }
 
 export interface Server extends AstNode {
-    readonly $container: Project;
+    readonly $container: Configuration;
     readonly $type: 'Server';
     host: Host
     port: Port
@@ -384,11 +390,6 @@ export class JgenAstReflection extends AbstractAstReflection {
             case Repository:
             case Service: {
                 return this.isSubtype(StructuralComponent, supertype);
-            }
-            case Datasource:
-            case Metadata:
-            case Server: {
-                return this.isSubtype(Configuration, supertype);
             }
             default: {
                 return false;
