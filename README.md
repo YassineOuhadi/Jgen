@@ -1,4 +1,4 @@
-# Welcome to Jgen VS Code Extension
+![image](https://github.com/YassineOuhadi/Jgen/assets/109771302/3949c43f-b1c8-4237-a63c-2a43563daed3)![image](https://github.com/YassineOuhadi/Jgen/assets/109771302/940e8c46-0df0-4b5c-b5b8-2e565ad7b323)# Welcome to Jgen VS Code Extension
 
 <img src='https://github.com/YassineOuhadi/Jgen/assets/109771302/6ef3ebd1-56f2-4175-802b-60179011fd50' width='80'>
 
@@ -292,7 +292,7 @@ project Demo
 
 1. [OUHADI Yassine](https://github.com/YassineOuhadi)
 2. [HOUSSNI Badreddine](https://github.com/BADREDDINE1999)
-3. CHARIF Mehdi
-4. ALAMI IBN JAMAA Hamza
+3. [CHARIF Mehdi](https://github.com/mehdicharife)
+4. [ALAMI IBN JAMAA Hamza](https://github.com/Schrodingdong)
   
 ## License
