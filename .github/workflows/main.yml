@@ -12,20 +12,20 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v2
-      
+
     - name: Use Node.js
       uses: actions/setup-node@v2
       with:
         node-version: 16
 
     - name: Install dependencies
-      run: npm install
+      run: yarn install
 
     - name: Generate Language Files
-      run: npm run langium:generate
+      run: yarn run langium:generate
 
     - name: Build Extension
-      run: npm run build
+      run: yarn run build
 
     - name: Run Tests
-      run: npm run test
+      run: yarn run test
