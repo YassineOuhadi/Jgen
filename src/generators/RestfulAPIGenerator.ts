@@ -334,7 +334,7 @@ public class ${className} {
 }
 
 function generateRelationship(relationship: Relationship): string {
-    const mappedBy = relationship.type === 'OneToMany' ? `${relationship.to.ref?.name.toLowerCase()}` :  relationship.type === 'ManyToMany' ? `${relationship.from.ref?.name.toLowerCase()}s` : null;
+    const mappedBy = relationship.type === 'OneToMany' ? `${relationship.from.ref?.name.toLowerCase()}` :  relationship.type === 'ManyToMany' ? `${relationship.from.ref?.name.toLowerCase()}s` : null;
 
     const relationshipAnnotation = relationship.type !== 'ManyToOne' ? `@OneToMany(mappedBy = "${mappedBy}", cascade = CascadeType.ALL)` : `@ManyToOne(fetch = FetchType.LAZY)`;
 
