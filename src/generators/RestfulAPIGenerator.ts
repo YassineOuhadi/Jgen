@@ -39,17 +39,17 @@ function initializrProjectStructure(model: Project) {
     generatePomXml(model);
 
     // Copy the mvnw.cmd file to the project directory
-    const mvnwCmdPath = path.join('/home/yassine/MDE/JGEN/src/generators/maven/', 'mvnw.cmd');
+    const mvnwCmdPath = path.join(__dirname,'/maven', 'mvnw.cmd');
     const destinationMvnwCmdPath = path.join(projectPath, 'mvnw.cmd');
     fs.copyFileSync(mvnwCmdPath, destinationMvnwCmdPath);
 
     // Copy the mvnw file to the project directory
-    const mvnwPath = path.join('/home/yassine/MDE/JGEN/src/generators/maven/', 'mvnw');
+    const mvnwPath = path.join(__dirname,'/maven/', 'mvnw');
     const destinationMvnwPath = path.join(projectPath, 'mvnw');
     fs.copyFileSync(mvnwPath, destinationMvnwPath);
 
     // Copy the HELP.md file to the project directory
-    const HelpPath = path.join('/home/yassine/MDE/JGEN/src/generators/maven/', 'HELP.md');
+    const HelpPath = path.join(__dirname,'maven/', 'HELP.md');
     const destinationHelpPath = path.join(projectPath, 'HELP.md');
     fs.copyFileSync(HelpPath, destinationHelpPath);
 
