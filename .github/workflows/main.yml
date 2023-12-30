@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,5 +22,13 @@ jobs:
         node-version: 16
 
     - name: Install dependencies
-      run: yarn install
+      run: npm install
 
+    - name: Generate Language Files
+      run: npm run langium:generate
+
+    - name: Build Extension
+      run: npm run build
+
+    - name: Run Tests
+      run: npm run test
