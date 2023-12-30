@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-
+      
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -12,21 +12,15 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v2
-
+      
+    - name: Enter Directory
+      run: cd server/Jgen
+      
     - name: Use Node.js
       uses: actions/setup-node@v2
       with:
         node-version: 16
 
-    - name: Install VS Code
-      run: npm install -g vsce
-      # You might need additional steps to install dependencies required by your extension
+    - name: Install dependencies
+      run: yarn install
 
-    - name: Install Dependencies
-      run: npm install
-
-    - name: Build Extension
-      run: vsce package
-
-    - name: Run Tests
-      run: npm test
