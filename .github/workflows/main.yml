@@ -12,7 +12,12 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v2
-      
+      with:
+        ref: ${{ github.head_ref }}
+        submodules: recursive
+        token: ${{ secrets.GITHUB_TOKEN }}
+        persist-credentials: false
+
     - name: Enter Directory
       run: cd server/Jgen
       
@@ -26,4 +31,3 @@ jobs:
       
     - name: Run Tests
       run: yarn run test
-
