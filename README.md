@@ -272,10 +272,29 @@ project Demo
 
  * Run `npm run langium:generate` to generate TypeScript code from the grammar definition.
  * Run `npm run build` to compile all TypeScript code.
- * Press `F5` to open a new window with Jgen extension loaded.
+ * Press `F5` to open a new window with the Jgen extension loaded.
  * Create a new file with a file name suffix `.jgen`.
- * Verify that syntax highlighting, validation, completion etc. are working as expected.
+ * Verify that syntax highlighting, validation, completion, etc. are working as expected.
  * Run `./bin/cli` to see options for the CLI; `./bin/cli generate <file>` generates code for a given DSL file.
+  * To generate REST code for a given DSL file with a specified destination, use the following command: 
+    - `./bin/cli generateRESTfulAPI --help` to see options and help for the `generateRESTfulAPI` command.
+    - `./bin/cli generateRESTfulAPI -d <destination-path> -p <file>` for file path or `./bin/cli generateRESTfulAPI -d <destination-path> -c "<jgen-content>"` for direct content. Replace `<destination-path>` with the desired directory path where you want to store the generated code.
+
+## Get started with the Docker image
+
+* To generate code for a given DSL file with a specified destination using the Docker image:
+
+    * Pull the Docker image from Docker Hub:
+    ```
+    docker pull yassineouhadi/jgen:jgen
+    ```
+
+    * Run the Docker image, specifying the `-v` volume option to set the output path:
+
+    ```
+    docker run -it -v <destination-path>:/jgen/generated yassineouhadi/jgen:jgen generateRESTfulAPI -c <content>
+    ```
+    You can use `"$(cat ./path/to/file)"` to pass the content of a local file as input.
 
 ## Overview
 
