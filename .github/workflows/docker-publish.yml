@@ -30,7 +30,14 @@ jobs:
         with:
           context: .
           push: true
-          tags: docker.io/yassineouhadi/jgen:jgen
+          tags: ghcr.io/yassineouhadi/jgen:jgen
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
