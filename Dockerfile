@@ -1,19 +1,23 @@
-FROM node:16
-
-WORKDIR /jgen
-
-# Copy the necessary files
+# Step 1: Build Stage
+FROM node:16.13.0 AS build
+WORKDIR /app
 COPY . .
-
-# Install dependencies
 RUN yarn install
-
-# Generate Language Files
 RUN yarn run langium:generate
-
-# Build Extension
 RUN yarn run build
-
-# Set the entry point
 ENTRYPOINT ["./bin/cli"]
 
+
+# Step 2: Final Stage
+FROM node:16.13.0
+WORKDIR /jgen
+COPY --from=build /app/dist ./dist
+
+# Set non-root user
+USER node
+
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+
+# Install production dependencies
+RUN yarn install --production
