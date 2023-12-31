@@ -30,7 +30,7 @@ jobs:
                   file: ./Dockerfile
                   push: true
                   tags: yassineouhadi/jgen:jgen
-            - 
+            - # Cache Yarn dependencies
                 name: Cache Yarn dependencies
                 uses: actions/cache@v2
                 with:

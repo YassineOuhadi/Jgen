@@ -272,6 +272,7 @@ project Demo
 
  * Run `npm run langium:generate` to generate TypeScript code from the grammar definition.
  * Run `npm run build` to compile all TypeScript code.
+ * Run `npm run build:web` and `npm run serve` to start web editor.
  * Press `F5` to open a new window with the Jgen extension loaded.
  * Create a new file with a file name suffix `.jgen`.
  * Verify that syntax highlighting, validation, completion, etc. are working as expected.
