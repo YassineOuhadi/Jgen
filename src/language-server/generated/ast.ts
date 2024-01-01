@@ -24,6 +24,7 @@ export interface Attribute extends AstNode {
     nullable: boolean
     primaryKey: boolean
     type?: string
+    unique: boolean
 }
 
 export const Attribute = 'Attribute';
@@ -51,6 +52,7 @@ export interface Controller extends AstNode {
     readonly $type: 'Controller';
     entity: Reference<Entity>
     name: string
+    path: string
     routes: Array<Route>
     service: Reference<Service>
 }
@@ -429,7 +431,8 @@ export class JgenAstReflection extends AbstractAstReflection {
                     name: 'Attribute',
                     mandatory: [
                         { name: 'nullable', type: 'boolean' },
-                        { name: 'primaryKey', type: 'boolean' }
+                        { name: 'primaryKey', type: 'boolean' },
+                        { name: 'unique', type: 'boolean' }
                     ]
                 };
             }

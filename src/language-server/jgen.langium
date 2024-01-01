@@ -10,7 +10,7 @@ Entity:
     (attributes+=Attribute)*;
 
 Attribute:
-    'attribute' name=ID 'type' (enumType=[Enum] | type=DATATYPE) (nullable?='nullable')? (primaryKey?='primaryKey')?;
+    'attribute' name=ID 'type' (enumType=[Enum] | type=DATATYPE) (nullable?='nullable')? (unique?='unique')? (primaryKey?='primaryKey')?;
 
 StructuralComponent:
     Enum | Entity | Relationship | Repository | Controller | Service;
@@ -26,7 +26,7 @@ Service:
 
 Controller:
     'controller' name=ID 'for' entity=[Entity:ID]
-        'path' name=PATH &
+        'path' path=PATH &
         'service' service=[Service:ID] &
         (routes+=Route)+;
 

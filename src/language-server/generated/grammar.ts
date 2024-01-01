@@ -178,6 +178,16 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           },
           {
             "$type": "Assignment",
+            "feature": "unique",
+            "operator": "?=",
+            "terminal": {
+              "$type": "Keyword",
+              "value": "unique"
+            },
+            "cardinality": "?"
+          },
+          {
+            "$type": "Assignment",
             "feature": "primaryKey",
             "operator": "?=",
             "terminal": {
@@ -468,7 +478,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               {
                 "$type": "Assignment",
-                "feature": "name",
+                "feature": "path",
                 "operator": "=",
                 "terminal": {
                   "$type": "RuleCall",
