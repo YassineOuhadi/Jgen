@@ -12,7 +12,31 @@ editorConfig.setMainLanguageId('jgen');
 
 editorConfig.setMonarchTokensProvider(monarchSyntax);
 
-editorConfig.setMainCode(`// Jgen is running in the web!`);
+editorConfig.setMainCode(`
+project Demo
+
+	configuration
+		metadata
+			buildTool Maven
+			springVersion 3.1.6
+			group com.example
+			artifact demo
+			name demo
+			description "Demo project for Spring Boot"
+			package com.example.demo
+			packaging Jar
+			javaVersion 17
+
+		datasource
+			type
+			host
+			port
+			database
+
+		server
+			host
+			port
+            `);
 
 editorConfig.theme = 'vs-dark';
 editorConfig.useLanguageClient = true;

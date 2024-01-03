@@ -74,13 +74,14 @@ function generatePomXml(model: Project): void {
     // buildTool, packaging ??
     // dependecy versions
     pomNode.append(`<?xml version="1.0" encoding="UTF-8"?>
-    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>${model.configuration.metadata.springVersion}</version>
-        <relativePath/>
+        <version>2.6.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>${model.configuration.metadata.group}</groupId>
 	<artifactId>${model.configuration.metadata.artifact}</artifactId>
@@ -91,100 +92,69 @@ function generatePomXml(model: Project): void {
 		<java.version>${model.configuration.metadata.javaVersion}</java.version>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin.external.google</groupId>
-			<artifactId>android-json</artifactId>
-			<version>0.0.20131108.vaadin1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.12.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-websocket</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>3.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct</artifactId>
-			<version>1.5.3.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct-processor</artifactId>
-			<version>1.5.3.Final</version>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.3.Final</version>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>`
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>`
     );
     pomNode.append(NL, '</project>');
 
@@ -206,15 +176,14 @@ function generateApplicationProperties(model: Project): string {
     if (model.configuration.datasource.type !== "MySQL")
         throw new Error(`${model.configuration.datasource.type} generation not implemented.`);;
 
-    return `
-    spring.datasource.url=jdbc:mysql://${model.configuration.datasource.host.name}:${model.configuration.datasource.port.name}/${model.configuration.datasource.database.name}
-    spring.datasource.username=root
-    spring.datasource.password=
-    spring.jpa.hibernate.ddl-auto=update
-    spring.jpa.show-sql=true
-    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MariaDBDialect
-    spring.jpa.properties.hibernate.format_sql=true
-    server.port=${model.configuration.server.port.name}
+    return `spring.datasource.url=jdbc:mysql://${model.configuration.datasource.host.name}:${model.configuration.datasource.port.name}/${model.configuration.datasource.database.name}
+spring.datasource.username=root
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MariaDBDialect
+spring.jpa.properties.hibernate.format_sql=true
+server.port=${model.configuration.server.port.name}
     `;
 }
 
@@ -255,7 +224,7 @@ function generateRestCore(model: Project, mainPackagePath: string) {
     const repositoriesPath = path.join(mainPackagePath, 'repository');
     const servicesPath = path.join(mainPackagePath, 'service');
     const servicesInterfacesPath = path.join(servicesPath, 'service');
-    const servicesImplPath = path.join(servicesPath, 'Impl');
+    const servicesImplPath = path.join(servicesPath, 'impl');
     const utilsPath = path.join(mainPackagePath, 'utils');
     const webPath = path.join(mainPackagePath, 'web');
     const restPath = path.join(webPath, 'rest');
@@ -290,7 +259,7 @@ function generateRestCore(model: Project, mainPackagePath: string) {
     // Generate services
     (model.structuralComponents.filter(o => o.$type === 'Service') as Service[]).map(o => {
         fs.writeFileSync(path.join(servicesInterfacesPath, `${o.name}.java`), generateServiceInterface(o, model.configuration.metadata.package));
-        fs.writeFileSync(path.join(servicesImplPath, `${o.name}.java`), generateServiceImpl(o, model.configuration.metadata.package));
+        fs.writeFileSync(path.join(servicesImplPath, `${o.name}Impl.java`), generateServiceImpl(o, model.configuration.metadata.package));
     });
 
     // Generate controllers
@@ -329,6 +298,9 @@ public enum ${enumName} {
 
     // Literals
     ${enumLiterals}
+
+    ${enumName}(String literal) {
+    }
 }
 `;
 }
@@ -339,13 +311,8 @@ function generateDomain(entity: Entity, packagePath: string): string {
     const attributes = entity.attributes || [];
 
     const imports = [
-        'import javax.persistence.Entity;',
-        'import javax.persistence.GeneratedValue;',
-        'import javax.persistence.GenerationType;',
-        'import javax.persistence.Id;',
-        'import javax.persistence.Table;',
-        'import javax.persistence.Column;',
-        'import lombok.Data;'
+        'import javax.persistence.*;',
+        'import java.util.List;'
     ];
 
     const enumImports = attributes
@@ -535,7 +502,7 @@ function generateServiceImpl(service: Service, packagePath: string): string {
     const imports = [
         `import ${packagePath}.domain.${entityRef?.name};`,
         `import ${packagePath}.repository.${repositoryRef?.name};`,
-        `import ${packagePath}.seervice.service.${serviceName};`,
+        `import ${packagePath}.service.service.${serviceName};`,
         'import org.springframework.beans.factory.annotation.Autowired;',
         'import org.springframework.stereotype.Service;',
         'import lombok.extern.slf4j.Slf4j;',
@@ -575,10 +542,11 @@ function generateController(controller: Controller, packagePath: string): string
     // Import statements
     const imports = [
         `import ${packagePath}.domain.${entityRef?.name};`,
-        `import ${packagePath}.service.${serviceRef?.name};`,
+        `import ${packagePath}.service.service.${serviceRef?.name};`,
         'import org.springframework.beans.factory.annotation.Autowired;',
         'import org.springframework.web.bind.annotation.*;',
-        'import java.util.List;'
+        'import java.util.List;',
+        'import lombok.extern.slf4j.Slf4j;'
     ];
 
     // Controller routes

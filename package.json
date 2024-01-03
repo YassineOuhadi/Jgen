@@ -28,7 +28,7 @@
         "id": "jgen",
         "aliases": [
           "Jgen",
-          "Jgen"
+          "jgen"
         ],
         "extensions": [
           ".jgen"
@@ -226,7 +226,7 @@
     "test": "jest",
     "langium:generate": "langium generate",
     "langium:watch": "langium generate --watch",
-    "build:worker": "esbuild --minify ./out/language-server/main.js --bundle --format=iife --outfile=./public/jgen-server-worker.js --platform=node",
+    "build:worker": "esbuild --minify ./out/language-server/main-browser.js --bundle --format=iife --outfile=./public/jgen-server-worker.js",
     "prepare:public": "shx mkdir -p ./public && shx cp -fr ./src/static/* ./public/",
     "copy:monaco-editor-wrapper": "shx cp -fr ./node_modules/monaco-editor-wrapper/bundle ./public/monaco-editor-wrapper",
     "copy:monaco-workers": "shx cp -fr ./node_modules/monaco-editor-workers/dist/ ./public/monaco-editor-workers",

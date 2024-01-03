@@ -396,7 +396,7 @@ export function deactivate(): Thenable<void> | undefined {
 	return undefined;
 }
 
-function initializrJgenFile(project: string): JgenNode {
+export function initializrJgenFile(project: string): JgenNode {
 	let i = 0;
 	const jsonResult: JgenNode = {
 		project: {
