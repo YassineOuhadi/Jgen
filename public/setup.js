@@ -46,8 +46,8 @@ const workerURL = new URL('./jgen-server-worker.js', import.meta.url);
 console.log(workerURL.href);
 
 const lsWorker = new Worker(workerURL.href, {
-    type: 'classic',
-    name: 'Jgen Language Server'
+	type: 'classic',
+	name: 'Jgen Language Server'
 });
 client.setWorker(lsWorker);
 
