@@ -5,25 +5,36 @@ import { JgenLanguageMetaData } from '../language-server/generated/module';
 import { createJgenServices } from '../language-server/jgen-module';
 import { extractAstNode } from './cli-util';
 import { generateEcore } from '../generators/EcoreGenerator';
+import { generateJson } from '../generators/JsonGenerator';
+import { generateJgen } from '../generators/JgenGenerator';
 import { NodeFileSystem } from 'langium/node';
 import { generateRestfulAPI } from '../generators/RestfulAPIGenerator';
 import fs from 'fs';
 import path from 'path';
 
-export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
+export const generateEcoreAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createJgenServices(NodeFileSystem).Jgen;
     const model = await extractAstNode<Project>(fileName, services);
     const generatedFilePath = generateEcore(model, fileName, opts.destination);
     console.log(chalk.green(`Ecore code generated successfully: ${generatedFilePath}`));
 };
 
+export const generateJsonAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
+    const services = createJgenServices(NodeFileSystem).Jgen;
+    const model = await extractAstNode<Project>(fileName, services);
+    const generatedFilePath = generateJson(model, fileName, opts.destination);
+    console.log(chalk.green(`Json code generated successfully: ${generatedFilePath}`));
+};
 
-// export const generateRestfulAPIAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
-//     const services = createJgenServices(NodeFileSystem).Jgen;
-//     const model = await extractAstNode<Project>(fileName, services);
-//     const generatedFilePath = generateRestfulAPI(model, fileName, opts.destination);
-//     console.log(chalk.green(`Restful api code generated successfully: ${generatedFilePath}`));
-// };
+export const generateJgenAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
+    const services = createJgenServices(NodeFileSystem).Jgen;
+    const generatedFilePath = generateJgen(fileName, opts.destination);
+    console.log(chalk.green(`Json code generated successfully: ${generatedFilePath}`));
+};
+
+export const validateGrammarAction = async (fileName: string): Promise<void> => {
+    //
+};
 
 export const generateRestfulAPIAction = async (opts: GenerateOptions): Promise<void> => {
     const services = createJgenServices(NodeFileSystem).Jgen;
@@ -70,20 +81,31 @@ export default function (): void {
         .command('generateEcore')
         .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
         .option('-d, --destination <dir>', 'destination directory of generating')
-        .description('generates Ecore from jgen file')
-        .action(generateAction);
-    // program
-    //     .command('generateRESTfulAPI')
-    //     .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
-    //     .option('-d, --destination <dir>', 'destination directory of generating')
-    //     .description('generates Restful API from jgen file')
-    //     .action(generateRestfulAPIAction);
+        .description('generates Ecore from Jgen code')
+        .action(generateEcoreAction);
+    program
+        .command('generateJson')
+        .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+        .option('-d, --destination <dir>', 'destination directory of generating')
+        .description('generates Json from Jgen code')
+        .action(generateJsonAction);
+    program
+        .command('generateJgen')
+        .argument('<file>', `source file (possible file Json or Ecore)`)
+        .option('-d, --destination <dir>', 'destination directory of generating')
+        .description('generates Jgen from Json/Ecore code')
+        .action(generateJgenAction);
+    program
+        .command('validateGrammar')
+        .argument('<file>', `source file (possible file extensions: ${fileExtensions})`)
+        .description('validate grammar for a given Jgen code')
+        .action(validateGrammarAction);
     program
     .command('generateRESTfulAPI')
     .option('-d, --destination <dir>', 'destination directory of generating')
     .option('-c, --content <content>', 'jgen content directly')
     .option('-p, --path <file>', 'source file (possible file extensions: ${fileExtensions})')
-    .description('generates Restful API from jgen file or content')
+    .description('generates Restful API from Jgen code')
     .action(generateRestfulAPIAction)
     .on('--help', () => {
         console.log('');
@@ -97,8 +119,6 @@ export default function (): void {
         console.log('');
         console.log('Replace <destination-path> with the desired directory path where you want to store the generated code.');
     });
-
-
 
     program.parse(process.argv);
 }

@@ -12,20 +12,30 @@ Jgen, the DSL, is constructed on the Spring Boot REST API Ecore metamodel, devel
 
 The VS Code extension for the Jgen DSL allows the implementation of code validations, code completion, syntax highlighting, and a server protocol language. It features a tree view that synchronizes with the Jgen editor.
 
+- Clone the repository to your local machine:
+
+   `git clone https://github.com/YassineOuhadi/Jgen.git`
+
 ## Features
 
 1. Domain specific language using Langium.
 2. Semantic validators for our DSL based on TypeScript code.
-3. CLI for our DSL.
+3. Customizing the Jgen CLI.
 4. Parser for Jgen DSL that outputs JSON format.
 5. Transformation M2M between Ecore model and Jgen DSL.
 6. Generate Java RESTful APIs from Jgen DSL.
 7. Building an Extension.
    - Open Jgen file.
    - Initialize Jgen file.
-   - Tree view for Extension
-9. Generation in the Web.
-10. Graphical model for Jgen DSL.
+   - Import Ecore / JSON file.
+8. Tree view for Extension.
+9. Monaco Editor.
+10. Generation in the Web.
+
+## Jgen Metamodel
+
+![jgen metamodel ecore](https://github.com/YassineOuhadi/Jgen/assets/109771302/c842fce7-2ec1-4261-87d1-e60505a524e6)
+
 
 ## DSL for Generating Spring Boot REST APIs using Langium
 
@@ -184,18 +194,9 @@ project Demo
    relationship OneToMany from User to Tweet
 
    repository userRepository for User
-        query findBYName
-            type SELECT
-            parameter username is fullname
-        
         query getUserByEmail
             type SELECT
             parameter email is email
-        
-        query modifyUsername
-            type UPDATE
-            parameter id is id
-            parameter username is username
 
    service userService for User
         repository userRepository
@@ -205,39 +206,10 @@ project Demo
    controller userController for User
         path /user
         service userService
-        route addUser
-            path /add
-            operation POST
-            requestBody
-               parameter fullname is fullname
-               parameter email is email
-
-        route getUser
-            path /get
-            operation GET
-            requestParameter userId is id required
-        
         route getUserByEmail
             path /get
             operation GET
             requestParameter userEmail is email required
-        
-        route getAllUsers
-            path /all
-            operation GET
-        
-        route updateUser
-            path /update
-            operation PUT
-            requestBody
-               parameter fullname is fullname
-               parameter email is email
-            
-        route updateUser
-            path /update
-            operation PUT
-            requestParameter fullname is email required
-            requestParameter email is email required
 
     configuration
       metadata
@@ -264,9 +236,16 @@ project Demo
 		
 ```
 
+
 ## Visual Studio Code extension
 
-![mde drawio](https://github.com/YassineOuhadi/Jgen/assets/109771302/f3fc8b8f-aa45-4135-803f-72bfcc039156)
+![mde jgen arch diagram](https://github.com/YassineOuhadi/Jgen/assets/109771302/d15ade27-b16d-4826-8939-9de2125c089b)
+
+## Language Server Protocol (LSP)
+
+![mde jgen lsp](https://github.com/YassineOuhadi/Jgen/assets/109771302/8f611814-65f6-459c-8c3a-9fe655979985)
+
+
 
 ## Get started
 
@@ -280,6 +259,10 @@ project Demo
   * To generate REST code for a given DSL file with a specified destination, use the following command: 
     - `./bin/cli generateRESTfulAPI --help` to see options and help for the `generateRESTfulAPI` command.
     - `./bin/cli generateRESTfulAPI -d <destination-path> -p <file>` for file path or `./bin/cli generateRESTfulAPI -d <destination-path> -c "<jgen-content>"` for direct content. Replace `<destination-path>` with the desired directory path where you want to store the generated code.
+  * To validate Grammar for a given DSL instance use the following command: 
+    - `./bin/cli validateGrammar <file>`.
+  * To generate Ecore code / JSON format for a given DSL file with a specified destination, use the following command: 
+    - `./bin/cli generateEcore / generateJson -d <destination-path> <file>`.
 
 ## Get started with the Docker image
 
@@ -305,7 +288,7 @@ project Demo
     ```bash
     docker run -p 3000:3000 yassineouhadi/jgen:web
     ```
-
+    
 ## Overview
 
 ## Perspectives
@@ -316,6 +299,7 @@ project Demo
 
 1. Documentation about the Langium framework is available at [https://langium.org/docs/](https://langium.org/docs/)
 2. Vs Code Extension Guidelines is available at [https://code.visualstudio.com/api/ux-guidelines/overview](https://code.visualstudio.com/api/ux-guidelines/overview)
+3. MDE course available at [https://portail.fil.univ-lille.fr/portail/index.php?dipl=MInfo&sem=GL&ue=IDM&label=Cours](https://portail.fil.univ-lille.fr/portail/index.php?dipl=MInfo&sem=GL&ue=IDM&label=Cours)
 
 ## Members
 

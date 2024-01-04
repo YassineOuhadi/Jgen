@@ -132,6 +132,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		});
 	}));
 
+	// create new file button
+	context.subscriptions.push(vscode.commands.registerCommand("myImportEcoreButtonCommand", () => {
+		// 
+	}));
+
+	// create new file button
+	context.subscriptions.push(vscode.commands.registerCommand("myImportJsonButtonCommand", () => {
+		// 
+	}));
+
     // ..
 }
 

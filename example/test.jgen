@@ -18,19 +18,10 @@ project Demo
 
 	relationship OneToMany from User to Tweet
 
-	relationship ManyToOne from Tweet to User
-
 	repository userRepository for User
-		query findBYName
-			type SELECT
-			parameter username is fullname
 		query getUserByEmail
 			type SELECT
 			parameter email is email
-		query modifyUsername
-			type UPDATE
-			parameter id is id
-			parameter username is fullname
 
 	service userService for User
 		repository userRepository
@@ -56,13 +47,11 @@ project Demo
 			package com.example.demo
 			packaging Jar
 			javaVersion 17
-
 		datasource
 			type MySQL
 			host localhost
 			port 3306
 			database jgen
-
 		server
 			host localhost
 			port 9090
