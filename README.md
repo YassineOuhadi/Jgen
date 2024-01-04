@@ -285,17 +285,26 @@ project Demo
 
 * To generate code for a given DSL file with a specified destination using the Docker image:
 
-    * Pull the Docker image from Docker Hub:
+    * Pull the Jgen CLI image from Docker Hub:
+    ```bash
+    docker pull yassineouhadi/jgen:cli
     ```
-    docker pull yassineouhadi/jgen:jgen
-    ```
-
-    * Run the Docker image, specifying the `-v` volume option to set the output path:
-
-    ```
-    docker run -it -v <destination-path>:/jgen/generated yassineouhadi/jgen:jgen generateRESTfulAPI -c <content>
+    * Run the Jgen CLI image, specifying the `-v` volume option to set the output path:
+    ```bash
+    docker run -it -v <destination-path>:/jgen/generated yassineouhadi/jgen:cli generateRESTfulAPI -c <content>
     ```
     You can use `"$(cat ./path/to/file)"` to pass the content of a local file as input.
+
+* To use the Monaco Editor:
+
+    * Pull the Jgen Web image from Docker Hub:
+    ```bash
+    docker pull yassineouhadi/jgen:web
+    ```
+    * Run the Jgen Web image on localhost:3000:
+    ```bash
+    docker run -p 3000:3000 yassineouhadi/jgen:web
+    ```
 
 ## Overview
 

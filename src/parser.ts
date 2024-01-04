@@ -1,152 +1,154 @@
+import { Attribute, Configuration, Controller, Datasource, Entity, Enum, Literal, Metadata, Method, Parameter, Project, Query, Relationship, Repository, RequestParameter, Route, Server, Service } from "./language-server/generated/ast";
+
 export interface JgenNode {
-	project: ProjectNode;
+    project: ProjectNode;
 }
 
 interface ProjectNode {
-	id: number;
-	name: string;
-	entities: { entity: EntityNode }[];
-	relationships: { relationship: RelationshipNode }[];
-	enums: { enum: EnumNode }[];
-	repositories: { repository: RepositoryNode }[];
-	services: { service: ServiceNode }[];
-	controllers: { controller: ControllerNode }[];
-	configuration: ConfigurationNode;
+    id?: number;
+    name: string;
+    entities: { entity: EntityNode }[];
+    relationships: { relationship: RelationshipNode }[];
+    enums: { enum: EnumNode }[];
+    repositories: { repository: RepositoryNode }[];
+    services: { service: ServiceNode }[];
+    controllers: { controller: ControllerNode }[];
+    configuration: ConfigurationNode;
 }
 
 interface EntityNode {
-	id: number;
-	name: string;
-	attributes: { attribute: AttributeNode }[];
+    id?: number;
+    name: string;
+    attributes: { attribute: AttributeNode }[];
 }
 
 interface RelationshipNode {
-	id: number;
-	from: string;
-	to: string;
-	type: string;
+    id?: number;
+    from: string;
+    to: string;
+    type: string;
 }
 
 interface AttributeNode {
-	id: number;
-	name: string;
-	type: string;
-	primaryKey?: boolean;
-	nullable?: boolean;
+    id?: number;
+    name: string;
+    type: string;
+    primaryKey?: boolean;
+    nullable?: boolean;
 }
 
 interface EnumNode {
-	id: number;
-	name: string;
-	literals: { literal: EnumLiteralNode }[];
+    id?: number;
+    name: string;
+    literals: { literal: EnumLiteralNode }[];
 }
 
 interface EnumLiteralNode {
-	id: number;
-	name: string;
-	value: string;
+    id?: number;
+    name: string;
+    value: string;
 }
 
 interface QueryParameterNode {
-	id: number;
-	name: string;
-	attribute: string;
+    id?: number;
+    name: string;
+    attribute: string;
 }
 
 interface QueryNode {
-	id: number;
-	name: string;
-	type: string;
-	parameters: { parameter: QueryParameterNode }[];
+    id?: number;
+    name: string;
+    type: string;
+    parameters: { parameter: QueryParameterNode }[];
 }
 
 interface RepositoryNode {
-	id: number;
-	name: string;
-	entity: string;
-	queries: { query: QueryNode }[];
+    id?: number;
+    name: string;
+    entity: string;
+    queries: { query: QueryNode }[];
 }
 
 interface ServiceNode {
-	id: number;
-	name: string;
-	entity: string;
-	repository: string;
-	methods: { method: MethodNode }[];
+    id?: number;
+    name: string;
+    entity: string;
+    repository: string;
+    methods: { method: MethodNode }[];
 }
 
 interface MethodNode {
-	id: number;
-	name: string;
-	parameters: { parameter: QueryParameterNode }[];
+    id?: number;
+    name: string;
+    parameters: { parameter: QueryParameterNode }[];
 }
 
 interface ControllerNode {
-	id: number;
-	name: string;
-	path: string;
-	entity: string;
-	service: string;
-	routes: { route: RouteNode }[];
+    id?: number;
+    name: string;
+    path: string;
+    entity: string;
+    service: string;
+    routes: { route: RouteNode }[];
 }
 
 interface RouteNode {
-	id: number;
-	name: string;
-	path: string;
-	operation: string;
-	requestParameters?: { requestParameter: RequestParameterNode }[];
-	requestBody?: RequestBodyNode | null;
+    id?: number;
+    name: string;
+    path: string;
+    operation: string;
+    requestParameters?: { requestParameter: RequestParameterNode }[];
+    requestBody?: RequestBodyNode | null;
 }
 
 interface RequestParameterNode {
-	id: number;
-	name: string;
-	attribute: string;
-	isRequired: boolean;
+    id?: number;
+    name: string;
+    attribute: string;
+    isRequired: boolean;
 }
 
 interface RequestBodyNode {
-	id: number;
-	// name: string;
-	parameters: { parameter: QueryParameterNode }[];
+    id?: number;
+    // name: string;
+    parameters: { parameter: QueryParameterNode }[];
 }
 
 interface ConfigurationNode {
-	id: number;
-	metadata: MetadataNode;
-	datasource: DatasourceNode;
-	server: ServerNode;
+    id?: number;
+    metadata: MetadataNode;
+    datasource: DatasourceNode;
+    server: ServerNode;
 }
 
 interface MetadataNode {
-	id: number;
-	buildTool: string;
-	springVersion: string;
-	group: string;
-	artifact: string;
-	name: string;
-	description: string;
-	package: string;
-	packaging: string;
-	javaVersion: number;
+    id?: number;
+    buildTool: string;
+    springVersion: string;
+    group: string;
+    artifact: string;
+    name: string;
+    description: string;
+    package: string;
+    packaging: string;
+    javaVersion: number;
 }
 
 interface DatasourceNode {
-	id: number;
-	type: string;
-	host: string;
-	port: number;
-	database: string;
+    id?: number;
+    type: string;
+    host: string;
+    port: number;
+    database: string;
 }
 
 interface ServerNode {
-	id: number;
-	host: string;
-	port: number;
+    id?: number;
+    host: string;
+    port: number;
 }
 
-const nodeskeywords = ['enum', 'entity', 'relationship' ,'repository', 'service', 'controller', 'configuration'];
+const nodeskeywords = ['enum', 'entity', 'relationship', 'repository', 'service', 'controller', 'configuration'];
 
 let currentId = 0;
 
@@ -166,48 +168,48 @@ function getKeywordsOccurrences(line: string): { [key: string]: number } {
 }
 
 function extractDslLine(newLines: string[], line: string, keyword: string, keywordOcc: number): void {
-    
+
     const commentIndex = line.indexOf('//');
     if (commentIndex > 0)
         line = line.slice(0, commentIndex).trim();
-    
+
     let keywordsOccurrences = getKeywordsOccurrences(DslLine);
 
     const keywordsInLine = nodeskeywords.filter(keyword => line.includes(keyword));
     if (keywordsInLine.length > 0) {
-        
+
         for (const keywordInLine of keywordsInLine) {
 
             let index;
-            if( keyword !== '' && keyword === keywordInLine )
+            if (keyword !== '' && keyword === keywordInLine)
                 index = line.indexOf(keyword, keywordOcc);
-            else if( keyword !== '' )
+            else if (keyword !== '')
                 index = line.indexOf(keyword);
             else
                 index = line.indexOf(keywordInLine);
-            
-            if ( index >= 0 ) {
-                
+
+            if (index >= 0) {
+
                 const beforeKeyword = line.slice(0, index).trim();
                 const afterKeyword = line.slice(index).trim();
                 newLines.push(beforeKeyword.trim().replace(/\s+/g, ' '));
 
-                if(Object.values(getKeywordsOccurrences(afterKeyword)).reduce((a, b) => a + b, 0) === 1)
+                if (Object.values(getKeywordsOccurrences(afterKeyword)).reduce((a, b) => a + b, 0) === 1)
                     newLines.push(afterKeyword.trim().replace(/\s+/g, ' '));
-                
-                else if(Object.values(getKeywordsOccurrences(afterKeyword)).reduce((a, b) => a + b, 0) > 1 && index > 0 ) {
+
+                else if (Object.values(getKeywordsOccurrences(afterKeyword)).reduce((a, b) => a + b, 0) > 1 && index > 0) {
                     keywordOcc++;
                     if (afterKeyword.trim() !== '') {
                         let newLine = afterKeyword.trim().replace(/\s+/g, ' ');
                         extractDslLine(newLines, newLine, keyword === '' ? keywordInLine : keyword, keywordOcc);
                     }
                 }
-            } 
-            
+            }
+
             else if ((keyword !== '' && keywordOcc === keywordsOccurrences[keyword]) || (Object.values(keywordsOccurrences).reduce((a, b) => a + b, 0) === 1))
-               newLines.push(line.trim().replace(/\s+/g, ' '));
+                newLines.push(line.trim().replace(/\s+/g, ' '));
         }
-        
+
     } else newLines.push(line.trim().replace(/\s+/g, ' '));
 }
 
@@ -215,7 +217,7 @@ function cleaningDslFormat(dsl: string): string {
     const lines = dsl.split('\n');
     let modifiedLines: string[] = [];
     for (let line of lines) {
-        DslLine= line;
+        DslLine = line;
         extractDslLine(modifiedLines, line, '', 0);
     }
     return modifiedLines.join('\n');
@@ -223,9 +225,9 @@ function cleaningDslFormat(dsl: string): string {
 
 function extractLiteral(s: string[], i: number): EnumLiteralNode {
     const literal: EnumLiteralNode = {
-                    id: currentId++,
-                    name: s[i],
-                    value: s[i+2],
+        id: currentId++,
+        name: s[i],
+        value: s[i + 2],
     };
     return literal;
 }
@@ -245,29 +247,29 @@ function extractAttribute(s: string[], i: number): AttributeNode {
 
 function extractQuery(s: string[], i: number): QueryNode {
     const query: QueryNode = {
-                    id: currentId++,
-                    name: s[i],
-                    type:s[i+1] === 'type' ? s[i+2] : '',
-                    parameters: [],
+        id: currentId++,
+        name: s[i],
+        type: s[i + 1] === 'type' ? s[i + 2] : '',
+        parameters: [],
     };
     return query;
 }
 
 function extractQueryParameter(s: string[], i: number): QueryParameterNode {
     const parameter: QueryParameterNode = {
-                    id: currentId++,
-                    name: s[i],
-                    attribute: s[i+2],
+        id: currentId++,
+        name: s[i],
+        attribute: s[i + 2],
     };
     return parameter;
 }
 
 export function parseJgenJson(dsl: string): JgenNode {
 
-	currentId = 0;
+    currentId = 0;
 
-	dsl = cleaningDslFormat(dsl.trim().replace(/\n\s+/g, '\n'));
-    
+    dsl = cleaningDslFormat(dsl.trim().replace(/\n\s+/g, '\n'));
+
     const result: JgenNode = {
         project: {
             id: 0,
@@ -371,10 +373,10 @@ export function parseJgenJson(dsl: string): JgenNode {
 
         if (line.startsWith('project')) {
             result.project.name = line.split('project ')[1].replace(":", "").trim();
-        } 
-        
-        
-        
+        }
+
+
+
         else if (line.startsWith('enum')) {
             const enumParts = line.split('enum ')[1].trim().split(/\s+/);
             currentEnum = {
@@ -395,10 +397,10 @@ export function parseJgenJson(dsl: string): JgenNode {
                 const literal: EnumLiteralNode = extractLiteral(literalParts, 0);
                 currentEnum.literals.push({ literal });
             }
-        } 
-        
-        
-        
+        }
+
+
+
         else if (line.startsWith('entity')) {
             const entityParts = line.split('entity ')[1].replace(':', '').trim().split(/\s+/);
             currentEntity = {
@@ -421,10 +423,10 @@ export function parseJgenJson(dsl: string): JgenNode {
                 const attribute: AttributeNode = extractAttribute(attributeParts, 0);
                 currentEntity.attributes.push({ attribute });
             }
-        } 
-        
+        }
 
-        
+
+
         else if (line.startsWith('relationship')) {
             const relationshipParts = line.split('relationship ')[1].trim().split(' ');
             const relationship: RelationshipNode = {
@@ -434,9 +436,9 @@ export function parseJgenJson(dsl: string): JgenNode {
                 type: relationshipParts[0],
             };
             result.project.relationships.push({ relationship });
-        } 
-        
-        
+        }
+
+
         else if (line.startsWith('repository')) {
             if (isExternalRepositoryAppel) {
                 const repositoryParts = line.split('repository ')[1].trim().split(/\s+/);
@@ -454,15 +456,14 @@ export function parseJgenJson(dsl: string): JgenNode {
                         parameters: []
                     };;
                     for (let i = 4; i < repositoryParts.length; i += 4) {
-                        if( repositoryParts[i-1] === 'query' ) { // Iteration 1 => query
+                        if (repositoryParts[i - 1] === 'query') { // Iteration 1 => query
                             currentQuery = extractQuery(repositoryParts, i);
-                        } else if( repositoryParts[i-1] === 'parameter' ) {  // Others iterations => params
+                        } else if (repositoryParts[i - 1] === 'parameter') {  // Others iterations => params
                             const parameter: QueryParameterNode = extractQueryParameter(repositoryParts, i);
                             currentQuery.parameters.push({ parameter });
-                            if((repositoryParts[i+4] !== 'parameter' && i<repositoryParts.length-8) || !repositoryParts[i+4])
-                                {currentRepository.queries.push({ query : currentQuery });}
+                            if ((repositoryParts[i + 4] !== 'parameter' && i < repositoryParts.length - 8) || !repositoryParts[i + 4]) { currentRepository.queries.push({ query: currentQuery }); }
                         }
-                        
+
                     }
                 }
                 result.project.repositories.push({ repository: currentRepository });
@@ -470,8 +471,8 @@ export function parseJgenJson(dsl: string): JgenNode {
                 const repositoryParts = line.split('repository ')[1].trim().split(' ');
                 currentService.repository = repositoryParts[0];
             }
-        }         
-        
+        }
+
         else if (line.startsWith('query')) {
             if (currentRepository) {
                 const queryParts = line.split('query ')[1].trim().split(' ');
@@ -484,10 +485,10 @@ export function parseJgenJson(dsl: string): JgenNode {
                     }
                 }
             }
-        } 
-        
-        
-        
+        }
+
+
+
         else if (line.startsWith('type')) {
             const typeParts = line.split('type ')[1].trim().split(' ');
             if (currentQuery && isQueryTypeAppel) {
@@ -495,9 +496,9 @@ export function parseJgenJson(dsl: string): JgenNode {
             } else {
                 result.project.configuration.datasource.type = typeParts[0];
             }
-        } 
-        
-        
+        }
+
+
         // service + controller + repository
         else if (line.startsWith('parameter')) {
             if (isExternalRepositoryAppel && isExternalServiceAppel) {
@@ -536,10 +537,10 @@ export function parseJgenJson(dsl: string): JgenNode {
                     currentMethod.parameters.push({ parameter });
                 }
             }
-        } 
+        }
         //
-        
-        
+
+
         else if (line.startsWith('service')) {
             if (isExternalServiceAppel) {
                 const serviceNameParts = line.split('service ')[1].split(' for ');
@@ -677,7 +678,7 @@ export function parseJSONToJgenFormat(data: JgenNode): string {
 
     // Convert Entities
     for (const entityData of data.project.entities) {
-        console.log("entity data",entityData);
+        console.log("entity data", entityData);
         jgenString += `\tentity ${entityData.entity.name}\n`;
         for (const attribute of entityData.entity.attributes) {
             jgenString += `\t\tattribute ${attribute.attribute.name} type ${attribute.attribute.type}`;
@@ -783,4 +784,211 @@ export function parseJSONToJgenFormat(data: JgenNode): string {
     jgenString += `\t\t\tport ${configuration.server.port}\n`;
 
     return jgenString;
+}
+
+//
+
+export function parseProjectToJgenNode(project: Project): JgenNode {
+    const projectNode: ProjectNode = {
+        name: project.name,
+        entities: project.structuralComponents
+            .filter((component): component is Entity => component.$type === 'Entity')
+            .map((entity) => ({
+                entity: parseEntityNode(entity)
+            })),
+        relationships: project.structuralComponents
+            .filter((component): component is Relationship => component.$type === 'Relationship')
+            .map((relationship) => ({
+                relationship: parseRelationshipNode(relationship)
+            })),
+        enums: project.structuralComponents
+            .filter((component): component is Enum => component.$type === 'Enum')
+            .map((_enum) => ({
+                enum: parseEnumNode(_enum)
+            })),
+        repositories: project.structuralComponents
+            .filter((component): component is Repository => component.$type === 'Repository')
+            .map((repository) => ({
+                repository: parseRepositoryNode(repository)
+            })),
+        services: project.structuralComponents
+            .filter((component): component is Service => component.$type === 'Service')
+            .map((service) => ({
+                service: parseServiceNode(service)
+            })),
+        controllers: project.structuralComponents
+            .filter((component): component is Controller => component.$type === 'Controller')
+            .map((controller) => ({
+                controller: parseControllerNode(controller)
+            })),
+        configuration: parseConfigurationNode(project.configuration)
+    };
+
+    return { project: projectNode };
+}
+
+function parseEntityNode(entity: Entity): EntityNode {
+    return {
+        name: entity.name,
+        attributes: entity.attributes.map((attribute) => ({
+            attribute: parseAttributeNode(attribute)
+        })),
+    };
+}
+
+function parseAttributeNode(attribute: Attribute): AttributeNode {
+    return {
+        name: attribute.name,
+        type: attribute.type || '',
+        primaryKey: attribute.primaryKey || false,
+        nullable: attribute.nullable || false,
+    };
+}
+
+function parseRelationshipNode(relationship: Relationship): RelationshipNode {
+    return {
+        from: relationship.from.ref?.name || '',
+        to: relationship.to.ref?.name || '',
+        type: relationship.type || ''
+    };
+}
+
+function parseEnumNode(_enum: Enum): EnumNode {
+    return {
+        name: _enum.name,
+        literals: _enum.literals.map((literal) => ({
+            literal: parseLiteralNode(literal)
+        }))
+    };
+}
+
+function parseLiteralNode(literal: Literal): EnumLiteralNode {
+    return {
+        name: literal.name,
+        value: literal.value || ''
+    };
+}
+
+function parseRepositoryNode(repository: Repository): RepositoryNode {
+    return {
+        name: repository.name,
+        entity: repository.entity.ref?.name || '',
+        queries: repository.queries.map((query) => ({
+            query: parseQueryNode(query)
+        }))
+    }
+}
+
+function parseQueryNode(query: Query): QueryNode {
+    return {
+        name: query.name || '',
+        type: query.type || '',
+        parameters: query.parameters.map((parameter) => ({
+            parameter: parseParameterNode(parameter)
+        }))
+    }
+}
+
+function parseParameterNode(parameter: Parameter): QueryParameterNode {
+    return {
+        name: parameter.name || '',
+        attribute: parameter.attribute || ''
+    }
+}
+
+function parseServiceNode(service: Service): ServiceNode {
+    return {
+        name: service.name,
+        entity: service.entity.ref?.name || '',
+        repository: service.repository.ref?.name || '',
+        methods: service.methods.map((method) => ({
+            method: parseMethodNode(method)
+        }))
+    }
+}
+
+function parseMethodNode(method: Method): MethodNode {
+    return {
+        name: method.name,
+        parameters: method.parameters.map((parameter) => ({
+            parameter: parseParameterNode(parameter)
+        }))
+    }
+}
+
+function parseControllerNode(controller: Controller): ControllerNode {
+    return {
+        name: controller.name,
+        path: controller.path || '',
+        entity: controller.entity.ref?.name || '',
+        service: controller.service.ref?.name || '',
+        routes: controller.routes.map((route) => ({
+            route: parseRouteNode(route)
+        }))
+    }
+}
+
+function parseRouteNode(route: Route): RouteNode {
+    let routeNode: RouteNode = {
+        name: route.name,
+        path: route.path.name,
+        operation: route.operation.name,
+        requestParameters: route.requestParameters.map((parameter) => ({
+            requestParameter: parseRequestParameterNode(parameter)
+        }))
+    };
+    if (route.requestBody !== undefined) {
+        routeNode.requestBody = {
+            parameters: route.requestBody?.parameters?.map((parameter) => ({
+                parameter: parseParameterNode(parameter)
+            }))!
+        }
+    };
+    return routeNode;
+}
+
+function parseRequestParameterNode(parameter: RequestParameter): RequestParameterNode {
+    return {
+        name: parameter.name || '',
+        attribute: parameter.attribute || '',
+        isRequired: parameter.required
+    }
+}
+
+function parseConfigurationNode(configuration: Configuration): ConfigurationNode {
+    return {
+        metadata: parseMetadataNode(configuration.metadata),
+        datasource: parseDatasourceNode(configuration.datasource),
+        server: parseServerNode(configuration.server),
+    };
+}
+
+function parseMetadataNode(metadata: Metadata): MetadataNode {
+    return {
+        buildTool: metadata.tool || '',
+        springVersion: metadata.springVersion || '',
+        group: metadata.group || '',
+        artifact: metadata.artifact || '',
+        name: metadata.name || '',
+        description: metadata.description || '',
+        package: metadata.package || '',
+        packaging: metadata.packaging || '',
+        javaVersion: parseInt(metadata.javaVersion) || 0,
+    };
+}
+
+function parseDatasourceNode(datasource: Datasource): DatasourceNode {
+    return {
+        type: datasource.type || '',
+        host: datasource.host.name || '',
+        port: datasource.port.name || 0,
+        database: datasource.database.name || '',
+    };
+}
+
+function parseServerNode(server: Server): ServerNode {
+    return {
+        host: server.host.name || '',
+        port: server.port.name || 0,
+    };
 }
