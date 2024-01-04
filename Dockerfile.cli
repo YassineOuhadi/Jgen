@@ -16,4 +16,3 @@ RUN yarn run build
 
 # Set the entry point
 ENTRYPOINT ["./bin/cli"]
-

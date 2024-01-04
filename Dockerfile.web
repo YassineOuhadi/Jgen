@@ -1,0 +1,22 @@
+# Stage 1: Build the application
+FROM node:16 AS builder
+
+WORKDIR /jgen
+
+# Copy the necessary files
+COPY . .
+
+# Install dependencies
+RUN yarn install
+
+# Generate Language Files
+RUN yarn run langium:generate
+
+# Build Extension
+RUN yarn run build:web
+
+# Expose the necessary port for serving the application
+EXPOSE 3000
+
+# Set the entry point to serve the application
+CMD ["yarn", "serve"]
