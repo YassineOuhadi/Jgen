@@ -1,4 +1,4 @@
-# Welcome to Jgen VS Code Extension
+# Welcome to Jgen Vs Code Extension
 
 <img src='https://github.com/YassineOuhadi/Jgen/assets/109771302/6ef3ebd1-56f2-4175-802b-60179011fd50' width='80'>
 
@@ -12,9 +12,7 @@ Jgen, the DSL, is constructed on the Spring Boot REST API Ecore metamodel, devel
 
 The VS Code extension for the Jgen DSL allows the implementation of code validations, code completion, syntax highlighting, and a server protocol language. It features a tree view that synchronizes with the Jgen editor.
 
-- Clone the repository to your local machine:
-
-   `git clone https://github.com/YassineOuhadi/Jgen.git`
+> Clone the repository to your local machine ussing the cmd: `git clone https://github.com/YassineOuhadi/Jgen.git`
 
 ## Features
 
@@ -34,10 +32,13 @@ The VS Code extension for the Jgen DSL allows the implementation of code validat
 
 ## Jgen Metamodel
 
+This is the Ecore metamodel for our DSL. It represents the metamodel of the basic functionalities of Spring Boot REST APIs. We need this metamodel for our M2M or M2T transformations, allowing us to perform transformations between different metamodels or generate code from the metamodel.
+
 ![jgen metamodel ecore](https://github.com/YassineOuhadi/Jgen/assets/109771302/c842fce7-2ec1-4261-87d1-e60505a524e6)
 
-
 ## DSL for Generating Spring Boot REST APIs using Langium
+
+Based on the metamodel, we generated the Xtext grammar. Since the Langium grammar is similar to Xtext, we simply personalized it.
 
 ### Jgen Grammar
 
@@ -171,7 +172,69 @@ hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
 hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
 ```
 
-### Instance content Example
+## Jgen Extension Architecture
+
+This diagram illustrates the general architecture of our Jgen extension:
+
+![mde jgen arch diagram](https://github.com/YassineOuhadi/Jgen/assets/109771302/d15ade27-b16d-4826-8939-9de2125c089b)
+
+## Language Server Protocol (LSP)
+
+The communication between the VS Code extension runtime / Web editor and the language server is facilitated through the LSP protocol to enable functionalities such as auto-completion, syntax highlighting, validation, generation, and more.
+
+![mde jgen lsp](https://github.com/YassineOuhadi/Jgen/assets/109771302/8f611814-65f6-459c-8c3a-9fe655979985)
+
+## Overview
+
+## Get started
+
+ * Run `npm run langium:generate` to generate TypeScript code from the grammar definition.
+ * Run `npm run build` to compile all TypeScript code.
+ * Run `npm run build:web` and `npm run serve` to start web editor.
+ * Press `F5` to open a new window with the Jgen extension loaded.
+ * Create a new file with a file name suffix `.jgen`.
+ * Verify that syntax highlighting, validation, completion, etc. are working as expected.
+ * Run `./bin/cli` to see options for the CLI; `./bin/cli generate <file>` generates code for a given DSL file.
+  * To generate REST code for a given DSL file with a specified destination, use the following command: 
+    - `./bin/cli generateRESTfulAPI --help` to see options and help for the `generateRESTfulAPI` command.
+    - `./bin/cli generateRESTfulAPI -d <destination-path> -p <file>` for file path or `./bin/cli generateRESTfulAPI -d <destination-path> -c "<jgen-content>"` for direct content. Replace `<destination-path>` with the desired directory path where you want to store the generated code.
+  * To validate Grammar for a given DSL instance use the following command: 
+    - `./bin/cli validateGrammar <file>`.
+  * To generate Ecore code / JSON format for a given DSL file with a specified destination, use the following command: 
+    - `./bin/cli generateEcore / generateJson -d <destination-path> <file>`.
+
+## Get started with the Docker image
+
+* To generate code for a given DSL file with a specified destination using the Docker image:
+
+    * Pull the Jgen CLI image from Docker Hub:
+    ```bash
+    docker pull yassineouhadi/jgen:cli
+    ```
+    * Run the Jgen CLI image, specifying the `-v` volume option to set the output path:
+    ```bash
+    docker run -it -v <destination-path>:/jgen/generated yassineouhadi/jgen:cli generateRESTfulAPI -c <content>
+    ```
+    You can use `"$(cat ./path/to/file)"` to pass the content of a local file as input.
+
+* To use the Monaco Editor:
+
+    * Pull the Jgen Web image from Docker Hub:
+    ```bash
+    docker pull yassineouhadi/jgen:web
+    ```
+    * Run the Jgen Web image on localhost:3000:
+    ```bash
+    docker run -p 3000:3000 yassineouhadi/jgen:web
+    ```
+
+## Use case - Generate Spring Boot RESTful API
+
+### Jgen Instance
+
+You can write your Jgen code in the VS Code extension runtime window using the tree view offered by the Jgen extension, or in the Monaco editor. You also have the possibility to initialize the Jgen code and personalize it.
+
+Here is an example of our Jgen instance, the main idea is to generate code that corresponds to CRUD operations for entities such as User and Tweet. This instance includes specifications for entities, relationships, repositories, services, and controllers:
 
 ```
 project Demo
@@ -236,64 +299,47 @@ project Demo
 		
 ```
 
+> If you don't use Monaco Editor or the extension's runtime window, you can validate your Jgen code using the Command Line Interface (CLI). Refer to the instructions at the top to learn how to do this.
 
-## Visual Studio Code extension
+### Extention Editor - Tree View
 
-![mde jgen arch diagram](https://github.com/YassineOuhadi/Jgen/assets/109771302/d15ade27-b16d-4826-8939-9de2125c089b)
+This is the corresponding tree view for our Jgen instance. You can use it to create your entities, services, repositories .. etc, and all changes are synchronized with the corresponding Jgen file:
 
-## Language Server Protocol (LSP)
+![jgen-treeview](https://github.com/YassineOuhadi/Jgen/assets/109771302/1dc46a59-62cd-4f23-92ba-5fb00e9ed699)
 
-![mde jgen lsp](https://github.com/YassineOuhadi/Jgen/assets/109771302/8f611814-65f6-459c-8c3a-9fe655979985)
+### Monaco Editor - Web Editor
 
+This is the web editor integrated with the same functionalities as our extension runtime, thanks to the use of LSP and Monaco. It allows us to create Jgen code directly on a website, which is extremely convenient, especially for code generation. Here is an example of our Jgen instance.
 
+![monacoeditor](https://github.com/YassineOuhadi/Jgen/assets/109771302/102fcf7f-b80c-465e-b349-7c911388a0b2)
 
-## Get started
+### Code generation using CLI
 
- * Run `npm run langium:generate` to generate TypeScript code from the grammar definition.
- * Run `npm run build` to compile all TypeScript code.
- * Run `npm run build:web` and `npm run serve` to start web editor.
- * Press `F5` to open a new window with the Jgen extension loaded.
- * Create a new file with a file name suffix `.jgen`.
- * Verify that syntax highlighting, validation, completion, etc. are working as expected.
- * Run `./bin/cli` to see options for the CLI; `./bin/cli generate <file>` generates code for a given DSL file.
-  * To generate REST code for a given DSL file with a specified destination, use the following command: 
-    - `./bin/cli generateRESTfulAPI --help` to see options and help for the `generateRESTfulAPI` command.
-    - `./bin/cli generateRESTfulAPI -d <destination-path> -p <file>` for file path or `./bin/cli generateRESTfulAPI -d <destination-path> -c "<jgen-content>"` for direct content. Replace `<destination-path>` with the desired directory path where you want to store the generated code.
-  * To validate Grammar for a given DSL instance use the following command: 
-    - `./bin/cli validateGrammar <file>`.
-  * To generate Ecore code / JSON format for a given DSL file with a specified destination, use the following command: 
-    - `./bin/cli generateEcore / generateJson -d <destination-path> <file>`.
+For the code generation of our Jgen instance using the CLI, as indicated in the source code structure, the Jgen instance exists in `./example/test/jgen`. We generate a Jgen file from this path, and the destination is `/generated` in the same root directory. The command for this process is `./bin/cli generateRESTfulAPI -d /generated -p ./example/test.jgen`.
 
-## Get started with the Docker image
+The generated code for our instance is as follows:
 
-* To generate code for a given DSL file with a specified destination using the Docker image:
+![jgen codegenrated](https://github.com/YassineOuhadi/Jgen/assets/109771302/7e6b687d-3224-4d1d-8b96-fd532d41c833)
 
-    * Pull the Jgen CLI image from Docker Hub:
-    ```bash
-    docker pull yassineouhadi/jgen:cli
-    ```
-    * Run the Jgen CLI image, specifying the `-v` volume option to set the output path:
-    ```bash
-    docker run -it -v <destination-path>:/jgen/generated yassineouhadi/jgen:cli generateRESTfulAPI -c <content>
-    ```
-    You can use `"$(cat ./path/to/file)"` to pass the content of a local file as input.
+### Code generation in the Web
 
-* To use the Monaco Editor:
-
-    * Pull the Jgen Web image from Docker Hub:
-    ```bash
-    docker pull yassineouhadi/jgen:web
-    ```
-    * Run the Jgen Web image on localhost:3000:
-    ```bash
-    docker run -p 3000:3000 yassineouhadi/jgen:web
-    ```
-    
-## Overview
+> For code generation, we plan to enhance this feature in the upcoming versions of Jgen, allowing users to generate their Rest API without relying on the CLI. It will be a purely web-based solution.
 
 ## Perspectives
 
-- Regarding the perspectives, we plan to create a graphical model synchronized with our DSL. We're not sure to use Sprotty or Sirius Web.
+1. In the short-term perspectives, we aim to further enrich the integration of the Monaco editor with Langium. In this web integration, we envision the following:
+
+    - User Project Management: This feature will enable users to generate, visualize, and manage their Jgen projects.
+
+    - Advanced Export: The export button will be expanded to include advanced options. In addition to downloading the current Jgen project code, users will be able to choose from various file formats, such as Jgen, JSON, or Ecore. This flexibility will facilitate seamless integration with other tools and platforms.
+
+    - File Import: Users will also have the ability to directly import Jgen, JSON, or Ecore files into the editor. This will open the door to simplified collaboration, allowing users to share and import Jgen projects with their colleagues and partners.
+
+    - Version Management: A crucial aspect of project management is version control. We plan to implement version tracking functionality for each project, enabling users to revert to previous versions of the generated code, providing better control and traceability.
+
+2. It would be interesting to generalize our DSL to incorporate more concepts related to REST API development.
+
+3. Automation could be enhanced by integrating a synchronized diagram with our DSL, using tools such as Sprotty. This would enable a graphical visualization of entities and their relationships, offering a more intuitive understanding of the model.
 
 ## References
 
@@ -307,5 +353,9 @@ project Demo
 2. [HOUSNI Badreddine](https://github.com/BADREDDINE1999)
 3. [CHARIF Mehdi](https://github.com/mehdicharife)
 4. [ALAMI IBN JAMAA Hamza](https://github.com/Schrodingdong)
+
+## Supervisor
+
+M. MAHMOUD EL HAMLAOUI
   
 ## License

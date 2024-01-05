@@ -18,6 +18,8 @@ project Demo
 
 	relationship OneToMany from User to Tweet
 
+	relationship OneToMany from Tweet to User
+
 	repository userRepository for User
 		query getUserByEmail
 			type SELECT

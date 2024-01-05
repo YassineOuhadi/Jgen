@@ -7,7 +7,5 @@ import java.util.List;
 public interface userRepository extends JpaRepository<User, Long> {
 
     // Query methods
-    List<User> findBYName(@Param("fullname") String username);
-	List<User> getUserByEmail(@Param("email") String email);
-	void modifyUsername(@Param("id") Long id, @Param("fullname") String username);
+    List<User> getUserByEmail(@Param("email") String email);
 }
