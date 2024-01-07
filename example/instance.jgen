@@ -20,7 +20,8 @@ project Demo
 
 	relationship ManyToOne from Tweet to User
 
-	repository userRepository for User
+	repository userRepository
+	    entity User
 		query findBYName
 			type SELECT
 			parameter username is fullname
@@ -32,42 +33,43 @@ project Demo
 			parameter id is id
 			parameter username is fullname
 
-	service userService for User
+	service userService
 		repository userRepository
 		method getUserByEmail
 			parameter email is email
 
-	controller userController for User
+	controller userController
 		path /user
 		service userService
-		route addUser
-			path /add
-			operation POST
-			requestBody
-				parameter fullname is fullname
-				parameter email is email
-		route getUser
-			path /get
-			operation GET
-			requestParameter userId is id required
+		// route addUser
+		// 	path /add
+		// 	operation POST
+		// 	requestBody
+		// 		parameter fullname is fullname
+		// 		parameter email is email
+		// route getUser
+		// 	path /get
+		// 	operation GET
+		// 	requestParameter userId is id required
 		route getUserByEmail
 			path /get
 			operation GET
 			requestParameter userEmail is email required
-		route getAllUsers
-			path /all
-			operation GET
-		route updateUser
-			path /update
-			operation PUT
-			requestBody
-				parameter fullname is fullname
-				parameter email is email
-		route updateUser
-			path /update
-			operation PUT
-			requestParameter fullname is email required
-			requestParameter email is email required
+			responseType String
+		// route getAllUsers
+		// 	path /all
+		// 	operation GET
+		// route updateUser
+		// 	path /update
+		// 	operation PUT
+		// 	requestBody
+		// 		parameter fullname is fullname
+		// 		parameter email is email
+		// route updateUser
+		// 	path /update
+		// 	operation PUT
+		// 	requestParameter fullname is email required
+		// 	requestParameter email is email required
 
 	configuration
 		metadata

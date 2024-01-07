@@ -3,7 +3,7 @@ grammar Jgen
 entry Project:
     'project' name=ID
     (structuralComponents+=StructuralComponent )*
-    configuration=Configuration ;
+    configuration=Configuration;
 
 Entity:
     'entity' name=ID
@@ -16,25 +16,27 @@ StructuralComponent:
     Enum | Entity | Relationship | Repository | Controller | Service;
 
 Repository:
-    'repository' name=ID 'for' entity=[Entity:ID]
-    (queries+=Query)*;
+    'repository' name=ID
+        'entity' entity=[Entity:ID]
+        (queries+=Query)*;
 
 Service:
-    'service' name=ID 'for' entity=[Entity:ID] 
-        'repository' repository=[Repository:ID] &
-        (methods+=Method)+;
+    'service' name=ID
+        'repository' repository=[Repository:ID]
+        (methods+=Method)*;
 
 Controller:
-    'controller' name=ID 'for' entity=[Entity:ID]
-        'path' path=PATH &
-        'service' service=[Service:ID] &
-        (routes+=Route)+;
+    'controller' name=ID
+        'path' path=PATH
+        'service' service=[Service:ID]
+        (routes+=Route)*;
 
 Route:
     'route' name=ID
         path=Path
         operation=Operation
-        (requestBody=RequestBody | (requestParameters+=RequestParameter)*);
+        (requestBody=RequestBody | (requestParameters+=RequestParameter)*)
+        responseType=ResponseType;
 
 Parameter:
     'parameter' name=ID 'is' attribute=ID (required?='required')?;
@@ -51,12 +53,15 @@ Path:
 Operation:
     'operation' name=OPERATION;
 
+ResponseType:
+     'responseType' (entity=[Entity:ID] | string=DATATYPE);
+
 Relationship:
     'relationship' type=RELATIONSHIP 'from' from=[Entity:ID] 'to' to=[Entity:ID];
 
 Method:
-    'method' name=ID (
-    (parameters+=Parameter)*)?;
+    'method' name=ID
+    (parameters+=Parameter)*;
 
 Query:
     'query' name=ID (

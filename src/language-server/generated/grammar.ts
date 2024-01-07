@@ -29,7 +29,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -54,7 +54,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@18"
+                "$ref": "#/rules@19"
               },
               "arguments": []
             }
@@ -84,7 +84,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -128,7 +128,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -147,7 +147,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "CrossReference",
                   "type": {
-                    "$ref": "#/rules@16"
+                    "$ref": "#/rules@17"
                   },
                   "deprecatedSyntax": false
                 }
@@ -159,7 +159,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@29"
+                    "$ref": "#/rules@30"
                   },
                   "arguments": []
                 }
@@ -214,7 +214,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@16"
+              "$ref": "#/rules@17"
             },
             "arguments": []
           },
@@ -228,7 +228,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@13"
+              "$ref": "#/rules@14"
             },
             "arguments": []
           },
@@ -279,14 +279,14 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
           },
           {
             "$type": "Keyword",
-            "value": "for"
+            "value": "entity"
           },
           {
             "$type": "Assignment",
@@ -300,7 +300,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               "terminal": {
                 "$type": "RuleCall",
                 "rule": {
-                  "$ref": "#/rules@34"
+                  "$ref": "#/rules@35"
                 },
                 "arguments": []
               },
@@ -310,6 +310,73 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           {
             "$type": "Assignment",
             "feature": "queries",
+            "operator": "+=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@16"
+              },
+              "arguments": []
+            },
+            "cardinality": "*"
+          }
+        ]
+      },
+      "definesHiddenTokens": false,
+      "entry": false,
+      "fragment": false,
+      "hiddenTokens": [],
+      "parameters": [],
+      "wildcard": false
+    },
+    {
+      "$type": "ParserRule",
+      "name": "Service",
+      "definition": {
+        "$type": "Group",
+        "elements": [
+          {
+            "$type": "Keyword",
+            "value": "service"
+          },
+          {
+            "$type": "Assignment",
+            "feature": "name",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@35"
+              },
+              "arguments": []
+            }
+          },
+          {
+            "$type": "Keyword",
+            "value": "repository"
+          },
+          {
+            "$type": "Assignment",
+            "feature": "repository",
+            "operator": "=",
+            "terminal": {
+              "$type": "CrossReference",
+              "type": {
+                "$ref": "#/rules@4"
+              },
+              "terminal": {
+                "$type": "RuleCall",
+                "rule": {
+                  "$ref": "#/rules@35"
+                },
+                "arguments": []
+              },
+              "deprecatedSyntax": false
+            }
+          },
+          {
+            "$type": "Assignment",
+            "feature": "methods",
             "operator": "+=",
             "terminal": {
               "$type": "RuleCall",
@@ -331,192 +398,64 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
     },
     {
       "$type": "ParserRule",
-      "name": "Service",
+      "name": "Controller",
       "definition": {
-        "$type": "UnorderedGroup",
+        "$type": "Group",
         "elements": [
           {
-            "$type": "Group",
-            "elements": [
-              {
-                "$type": "Keyword",
-                "value": "service"
-              },
-              {
-                "$type": "Assignment",
-                "feature": "name",
-                "operator": "=",
-                "terminal": {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@34"
-                  },
-                  "arguments": []
-                }
-              },
-              {
-                "$type": "Keyword",
-                "value": "for"
-              },
-              {
-                "$type": "Assignment",
-                "feature": "entity",
-                "operator": "=",
-                "terminal": {
-                  "$type": "CrossReference",
-                  "type": {
-                    "$ref": "#/rules@1"
-                  },
-                  "terminal": {
-                    "$type": "RuleCall",
-                    "rule": {
-                      "$ref": "#/rules@34"
-                    },
-                    "arguments": []
-                  },
-                  "deprecatedSyntax": false
-                }
-              },
-              {
-                "$type": "Keyword",
-                "value": "repository"
-              },
-              {
-                "$type": "Assignment",
-                "feature": "repository",
-                "operator": "=",
-                "terminal": {
-                  "$type": "CrossReference",
-                  "type": {
-                    "$ref": "#/rules@4"
-                  },
-                  "terminal": {
-                    "$type": "RuleCall",
-                    "rule": {
-                      "$ref": "#/rules@34"
-                    },
-                    "arguments": []
-                  },
-                  "deprecatedSyntax": false
-                }
-              }
-            ]
+            "$type": "Keyword",
+            "value": "controller"
           },
           {
             "$type": "Assignment",
-            "feature": "methods",
-            "operator": "+=",
+            "feature": "name",
+            "operator": "=",
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@14"
+                "$ref": "#/rules@35"
               },
               "arguments": []
-            },
-            "cardinality": "+"
-          }
-        ]
-      },
-      "definesHiddenTokens": false,
-      "entry": false,
-      "fragment": false,
-      "hiddenTokens": [],
-      "parameters": [],
-      "wildcard": false
-    },
-    {
-      "$type": "ParserRule",
-      "name": "Controller",
-      "definition": {
-        "$type": "UnorderedGroup",
-        "elements": [
-          {
-            "$type": "Group",
-            "elements": [
-              {
-                "$type": "Keyword",
-                "value": "controller"
-              },
-              {
-                "$type": "Assignment",
-                "feature": "name",
-                "operator": "=",
-                "terminal": {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@34"
-                  },
-                  "arguments": []
-                }
-              },
-              {
-                "$type": "Keyword",
-                "value": "for"
-              },
-              {
-                "$type": "Assignment",
-                "feature": "entity",
-                "operator": "=",
-                "terminal": {
-                  "$type": "CrossReference",
-                  "type": {
-                    "$ref": "#/rules@1"
-                  },
-                  "terminal": {
-                    "$type": "RuleCall",
-                    "rule": {
-                      "$ref": "#/rules@34"
-                    },
-                    "arguments": []
-                  },
-                  "deprecatedSyntax": false
-                }
-              },
-              {
-                "$type": "Keyword",
-                "value": "path"
-              },
-              {
-                "$type": "Assignment",
-                "feature": "path",
-                "operator": "=",
-                "terminal": {
-                  "$type": "RuleCall",
-                  "rule": {
-                    "$ref": "#/rules@36"
-                  },
-                  "arguments": []
-                }
-              }
-            ]
+            }
           },
           {
-            "$type": "Group",
-            "elements": [
-              {
-                "$type": "Keyword",
-                "value": "service"
+            "$type": "Keyword",
+            "value": "path"
+          },
+          {
+            "$type": "Assignment",
+            "feature": "path",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@37"
               },
-              {
-                "$type": "Assignment",
-                "feature": "service",
-                "operator": "=",
-                "terminal": {
-                  "$type": "CrossReference",
-                  "type": {
-                    "$ref": "#/rules@5"
-                  },
-                  "terminal": {
-                    "$type": "RuleCall",
-                    "rule": {
-                      "$ref": "#/rules@34"
-                    },
-                    "arguments": []
-                  },
-                  "deprecatedSyntax": false
-                }
-              }
-            ]
+              "arguments": []
+            }
+          },
+          {
+            "$type": "Keyword",
+            "value": "service"
+          },
+          {
+            "$type": "Assignment",
+            "feature": "service",
+            "operator": "=",
+            "terminal": {
+              "$type": "CrossReference",
+              "type": {
+                "$ref": "#/rules@5"
+              },
+              "terminal": {
+                "$type": "RuleCall",
+                "rule": {
+                  "$ref": "#/rules@35"
+                },
+                "arguments": []
+              },
+              "deprecatedSyntax": false
+            }
           },
           {
             "$type": "Assignment",
@@ -529,7 +468,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               "arguments": []
             },
-            "cardinality": "+"
+            "cardinality": "*"
           }
         ]
       },
@@ -557,7 +496,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -615,6 +554,18 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "cardinality": "*"
               }
             ]
+          },
+          {
+            "$type": "Assignment",
+            "feature": "responseType",
+            "operator": "=",
+            "terminal": {
+              "$type": "RuleCall",
+              "rule": {
+                "$ref": "#/rules@13"
+              },
+              "arguments": []
+            }
           }
         ]
       },
@@ -642,7 +593,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -658,7 +609,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -699,7 +650,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -715,7 +666,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -788,7 +739,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@36"
+                "$ref": "#/rules@37"
               },
               "arguments": []
             }
@@ -819,10 +770,65 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@30"
+                "$ref": "#/rules@31"
               },
               "arguments": []
             }
+          }
+        ]
+      },
+      "definesHiddenTokens": false,
+      "entry": false,
+      "fragment": false,
+      "hiddenTokens": [],
+      "parameters": [],
+      "wildcard": false
+    },
+    {
+      "$type": "ParserRule",
+      "name": "ResponseType",
+      "definition": {
+        "$type": "Group",
+        "elements": [
+          {
+            "$type": "Keyword",
+            "value": "responseType"
+          },
+          {
+            "$type": "Alternatives",
+            "elements": [
+              {
+                "$type": "Assignment",
+                "feature": "entity",
+                "operator": "=",
+                "terminal": {
+                  "$type": "CrossReference",
+                  "type": {
+                    "$ref": "#/rules@1"
+                  },
+                  "terminal": {
+                    "$type": "RuleCall",
+                    "rule": {
+                      "$ref": "#/rules@35"
+                    },
+                    "arguments": []
+                  },
+                  "deprecatedSyntax": false
+                }
+              },
+              {
+                "$type": "Assignment",
+                "feature": "string",
+                "operator": "=",
+                "terminal": {
+                  "$type": "RuleCall",
+                  "rule": {
+                    "$ref": "#/rules@30"
+                  },
+                  "arguments": []
+                }
+              }
+            ]
           }
         ]
       },
@@ -850,7 +856,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@27"
+                "$ref": "#/rules@28"
               },
               "arguments": []
             }
@@ -871,7 +877,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               "terminal": {
                 "$type": "RuleCall",
                 "rule": {
-                  "$ref": "#/rules@34"
+                  "$ref": "#/rules@35"
                 },
                 "arguments": []
               },
@@ -894,7 +900,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               "terminal": {
                 "$type": "RuleCall",
                 "rule": {
-                  "$ref": "#/rules@34"
+                  "$ref": "#/rules@35"
                 },
                 "arguments": []
               },
@@ -927,7 +933,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -943,7 +949,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               },
               "arguments": []
             },
-            "cardinality": "?"
+            "cardinality": "*"
           }
         ]
       },
@@ -971,7 +977,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -993,7 +999,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                     "terminal": {
                       "$type": "RuleCall",
                       "rule": {
-                        "$ref": "#/rules@32"
+                        "$ref": "#/rules@33"
                       },
                       "arguments": []
                     }
@@ -1043,7 +1049,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -1055,7 +1061,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@17"
+                "$ref": "#/rules@18"
               },
               "arguments": []
             },
@@ -1087,7 +1093,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -1103,7 +1109,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -1137,7 +1143,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@24"
+                    "$ref": "#/rules@25"
                   },
                   "arguments": []
                 }
@@ -1151,7 +1157,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@19"
+                "$ref": "#/rules@20"
               },
               "arguments": []
             }
@@ -1163,7 +1169,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@20"
+                "$ref": "#/rules@21"
               },
               "arguments": []
             }
@@ -1198,7 +1204,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@31"
+                "$ref": "#/rules@32"
               },
               "arguments": []
             }
@@ -1210,7 +1216,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@21"
+                "$ref": "#/rules@22"
               },
               "arguments": []
             }
@@ -1222,7 +1228,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@22"
+                "$ref": "#/rules@23"
               },
               "arguments": []
             }
@@ -1234,7 +1240,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@23"
+                "$ref": "#/rules@24"
               },
               "arguments": []
             }
@@ -1265,7 +1271,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@21"
+                "$ref": "#/rules@22"
               },
               "arguments": []
             }
@@ -1277,7 +1283,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@22"
+                "$ref": "#/rules@23"
               },
               "arguments": []
             }
@@ -1308,7 +1314,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -1339,7 +1345,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@37"
+                "$ref": "#/rules@38"
               },
               "arguments": []
             }
@@ -1370,7 +1376,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
             "terminal": {
               "$type": "RuleCall",
               "rule": {
-                "$ref": "#/rules@34"
+                "$ref": "#/rules@35"
               },
               "arguments": []
             }
@@ -1408,7 +1414,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@28"
+                    "$ref": "#/rules@29"
                   },
                   "arguments": []
                 }
@@ -1476,7 +1482,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@25"
+                    "$ref": "#/rules@26"
                   },
                   "arguments": []
                 }
@@ -1497,7 +1503,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@34"
+                    "$ref": "#/rules@35"
                   },
                   "arguments": []
                 }
@@ -1518,7 +1524,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@25"
+                    "$ref": "#/rules@26"
                   },
                   "arguments": []
                 }
@@ -1539,7 +1545,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@35"
+                    "$ref": "#/rules@36"
                   },
                   "arguments": []
                 }
@@ -1560,7 +1566,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
                 "terminal": {
                   "$type": "RuleCall",
                   "rule": {
-                    "$ref": "#/rules@25"
+                    "$ref": "#/rules@26"
                   },
                   "arguments": []
                 }
@@ -1648,7 +1654,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
           {
             "$type": "RuleCall",
             "rule": {
-              "$ref": "#/rules@34"
+              "$ref": "#/rules@35"
             },
             "arguments": []
           },
@@ -1662,7 +1668,7 @@ export const JgenGrammar = (): Grammar => loadedJgenGrammar ?? (loadedJgenGramma
               {
                 "$type": "RuleCall",
                 "rule": {
-                  "$ref": "#/rules@34"
+                  "$ref": "#/rules@35"
                 },
                 "arguments": []
               }

@@ -18,26 +18,52 @@ project Demo
 
 	relationship OneToMany from User to Tweet
 
-	relationship OneToMany from Tweet to User
+	relationship ManyToOne from Tweet to User
 
-	repository userRepository for User
+	repository userRepository
+	    entity User
 		query getUserByEmail
 			type SELECT
-			parameter email is email
+			parameter email is email required
 
-	service userService for User
+	repository tweetRepository
+	    entity Tweet
+		query newTweet
+			type INSERT
+			parameter content is content required
+			parameter tags is tags
+
+	service userService
 		repository userRepository
 		method getUserByEmail
-			parameter email is email
+			parameter email is email required
 
-	controller userController for User
+    service tweetService
+		repository tweetRepository
+		method newTweet
+			parameter content is content required
+			parameter tags is tags
+
+	controller userController
 		path /user
 		service userService
 		route getUserByEmail
 			path /get
 			operation GET
 			requestParameter userEmail is email required
+			responseType User
 
+    controller tweetController
+		path /tweet
+		service tweetService
+		route newTweet
+			path /get
+			operation POST
+			requestBody
+			    parameter content is content required
+			    parameter tags is tags
+			responseType String
+			
 	configuration
 		metadata
 			buildTool Maven

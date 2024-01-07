@@ -438,7 +438,7 @@ function generateParameter(entity: Entity, parameter: Parameter | RequestParamet
 // Generate service interface
 function generateServiceInterface(service: Service, packagePath: string): string {
     const serviceName = service.name;
-    const entityRef = service.entity.ref;
+    const entityRef = service.repository.ref?.entity.ref;
 
     // Import statements
     const imports = [
@@ -466,25 +466,25 @@ function generateServiceMethods(service: Service, methods: Array<Method>, isImpl
     if (!isImpl) {
         return methods.map(method => {
             const methodName = method.name;
-            const parameters = method.parameters.map(p => generateParameter(service.entity.ref!, p, false)).join(', ');
-            const returnType = getReturnType(service.entity.ref!, service.repository.ref?.queries.find(q => q.name === methodName)!);
+            const parameters = method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p, false)).join(', ');
+            const returnType = getReturnType(service.repository.ref?.entity.ref!, service.repository.ref?.queries.find(q => q.name === methodName)!);
             return `public ${returnType} ${methodName}(${parameters});`;
         }).join('\n');
     } else {
         return methods.map(method => {
             const repositoryRef = service.repository.ref;
             const methodName = method.name;
-            const parameters = method.parameters.map(p => generateParameter(service.entity.ref!, p, false)).join(', ');
-            const returnType = getReturnType(service.entity.ref!, service.repository.ref?.queries.find(q => q.name === methodName)!);
+            const parameters = method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p, false)).join(', ');
+            const returnType = getReturnType(service.repository.ref?.entity.ref!, service.repository.ref?.queries.find(q => q.name === methodName)!);
 
             let treatment;
             if (returnType === "void")
-                treatment = `${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.entity.ref!, p)).join(', ')});`;
-            else treatment = `return ${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.entity.ref!, p)).join(', ')});`;
+                treatment = `${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p)).join(', ')});`;
+            else treatment = `return ${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p)).join(', ')});`;
 
             return `@Override
     public ${returnType} ${methodName}(${parameters}) {
-        log.info("Inside ${methodName} {}", ${method.parameters.map(p => generateParameter(service.entity.ref!, p))});
+        log.info("Inside ${methodName} {}", ${method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p))});
 
         ${treatment}
     };`;
@@ -495,7 +495,7 @@ function generateServiceMethods(service: Service, methods: Array<Method>, isImpl
 // Generate service implementation
 function generateServiceImpl(service: Service, packagePath: string): string {
     const serviceName = service.name;
-    const entityRef = service.entity.ref;
+    const entityRef = service.repository.ref?.entity.ref;
     const repositoryRef = service.repository.ref;
 
     // Import statements
@@ -536,7 +536,7 @@ public class ${serviceName}Impl implements ${serviceName} {
 function generateController(controller: Controller, packagePath: string): string {
     const controllerName = controller.name;
     const controllerPath = controller.path;
-    const entityRef = controller.entity.ref;
+    const entityRef = controller.service.ref?.repository.ref?.entity.ref;
     const serviceRef = controller.service.ref;
 
     // Import statements
@@ -582,7 +582,7 @@ function generateControllerRoute(controller: Controller, route: Route): string {
     const routePath = route.path.name;
     const requestBody = route.requestBody;
     const requestParameters = route.requestParameters;
-    const entityRef = controller.entity.ref;
+    const entityRef = controller.service.ref?.repository.ref?.entity.ref;
     const serviceRef = controller.service.ref;
 
     // Route annotation
@@ -591,7 +591,7 @@ function generateControllerRoute(controller: Controller, route: Route): string {
     // Path annotation
     const pathAnnotation = `@RequestMapping(path = "${routePath}", method = RequestMethod.${operation})`;
 
-    let returnType = getReturnType(controller.entity.ref!, controller.service.ref?.repository.ref?.queries.find(q => q.name === routeName)!);
+    let returnType = getReturnType(controller.service.ref?.repository.ref?.entity.ref!, controller.service.ref?.repository.ref?.queries.find(q => q.name === routeName)!);
 
     // Method signature
     let methodSignature = `public `;

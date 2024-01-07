@@ -50,7 +50,6 @@ export function isConfiguration(item: unknown): item is Configuration {
 export interface Controller extends AstNode {
     readonly $container: Project;
     readonly $type: 'Controller';
-    entity: Reference<Entity>
     name: string
     path: string
     routes: Array<Route>
@@ -305,6 +304,19 @@ export function isRequestParameter(item: unknown): item is RequestParameter {
     return reflection.isInstance(item, RequestParameter);
 }
 
+export interface ResponseType extends AstNode {
+    readonly $container: Route;
+    readonly $type: 'ResponseType';
+    entity?: Reference<Entity>
+    string?: string
+}
+
+export const ResponseType = 'ResponseType';
+
+export function isResponseType(item: unknown): item is ResponseType {
+    return reflection.isInstance(item, ResponseType);
+}
+
 export interface Route extends AstNode {
     readonly $container: Controller;
     readonly $type: 'Route';
@@ -313,6 +325,7 @@ export interface Route extends AstNode {
     path: Path
     requestBody?: RequestBody
     requestParameters: Array<RequestParameter>
+    responseType: ResponseType
 }
 
 export const Route = 'Route';
@@ -337,7 +350,6 @@ export function isServer(item: unknown): item is Server {
 export interface Service extends AstNode {
     readonly $container: Project;
     readonly $type: 'Service';
-    entity: Reference<Entity>
     methods: Array<Method>
     name: string
     repository: Reference<Repository>
@@ -371,6 +383,7 @@ export interface JgenAstType {
     Repository: Repository
     RequestBody: RequestBody
     RequestParameter: RequestParameter
+    ResponseType: ResponseType
     Route: Route
     Server: Server
     Service: Service
@@ -380,7 +393,7 @@ export interface JgenAstType {
 export class JgenAstReflection extends AbstractAstReflection {
 
     getAllTypes(): string[] {
-        return ['Attribute', 'Configuration', 'Controller', 'Database', 'Datasource', 'Entity', 'Enum', 'Host', 'Literal', 'Metadata', 'Method', 'Operation', 'Parameter', 'Path', 'Port', 'Project', 'Query', 'Relationship', 'Repository', 'RequestBody', 'RequestParameter', 'Route', 'Server', 'Service', 'StructuralComponent'];
+        return ['Attribute', 'Configuration', 'Controller', 'Database', 'Datasource', 'Entity', 'Enum', 'Host', 'Literal', 'Metadata', 'Method', 'Operation', 'Parameter', 'Path', 'Port', 'Project', 'Query', 'Relationship', 'Repository', 'RequestBody', 'RequestParameter', 'ResponseType', 'Route', 'Server', 'Service', 'StructuralComponent'];
     }
 
     protected override computeIsSubtype(subtype: string, supertype: string): boolean {
@@ -405,15 +418,14 @@ export class JgenAstReflection extends AbstractAstReflection {
             case 'Attribute:enumType': {
                 return Enum;
             }
-            case 'Controller:entity':
+            case 'Controller:service': {
+                return Service;
+            }
             case 'Relationship:from':
             case 'Relationship:to':
             case 'Repository:entity':
-            case 'Service:entity': {
+            case 'ResponseType:entity': {
                 return Entity;
-            }
-            case 'Controller:service': {
-                return Service;
             }
             case 'Service:repository': {
                 return Repository;

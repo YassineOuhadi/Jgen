@@ -39,6 +39,8 @@ export function registerValidationChecks(services: JgenServices) {
  */
 export class JgenValidator {
 
+    private errorFinded: boolean = false;
+
     checkStartsWithCapital(component: Entity | Enum, accept: ValidationAcceptor): void {
         if (component.name) {
             const firstChar = component.name[0];
@@ -79,28 +81,48 @@ export class JgenValidator {
     }
 
     checkService(component: Service, accept: ValidationAcceptor): void {
+        // check service methods
+        component.methods.forEach(m => {
+            if(!component.repository.ref?.queries.some(q => q.name === m.name)){
+                this.errorFinded = true;
+                accept('error', `Query '${m.name}' not found in repository '${component.repository.ref?.name}'.`, { node: m, property: 'name' });
+            }
+        });
+
+        // if(this.errorFinded) return;
+        // check methods parameters
         component.methods.forEach(m => {
             m.parameters.forEach(p => {
-                if (!component.entity.ref?.attributes.some(attr => attr.name === p.attribute)) {
-                    accept('error', `Parameter attribute '${p.attribute}' not found in entity '${component.entity.ref?.name}'.`, { node: p, property: 'attribute' });
+                if (!component.repository.ref?.queries.find(q => q.name === m.name)?.parameters.some(param => param.name === p.attribute)) {
+                    accept('error', `Parameter '${p.attribute}' not found in query '${component.repository.ref?.name}.${m.name}'.`, { node: p, property: 'attribute' });
                 }
             });
         });
     }
 
     checkController(component: Controller, accept: ValidationAcceptor): void {
+        // check controller routes
+        component.routes.forEach(r => {
+            if(!component.service.ref?.methods.some(m => m.name === r.name)){
+                this.errorFinded = true;
+                accept('error', `Method '${r.name}' not found in service '${component.service.ref?.name}'.`, { node: r, property: 'name' });
+            }
+        });
+
+        // if(this.errorFinded) return;
+        // check routes parameters
         component.routes.forEach(r => {
             if(r.requestParameters.length > 0) {
                 r.requestParameters.forEach(p => {
-                    if (!component.entity.ref?.attributes.some(attr => attr.name === p.attribute)) {
-                        accept('error', `Parameter attribute '${p.attribute}' not found in entity '${component.entity.ref?.name}'.`, { node: p, property: 'attribute' });
+                    if (!component.service.ref?.methods.find(m => m.name === r.name)?.parameters.some(param => param.name === p.attribute)) {
+                        accept('error', `Parameter '${p.attribute}' not found in method '${component.service.ref?.name}.${r.name}'.`, { node: p, property: 'attribute' });
                     }
                 });
             }
             if(r.requestBody) {
                 r.requestBody.parameters.forEach(p => {
-                    if (!component.entity.ref?.attributes.some(attr => attr.name === p.attribute)) {
-                        accept('error', `Parameter attribute '${p.attribute}' not found in entity '${component.entity.ref?.name}'.`, { node: p, property: 'attribute' });
+                    if (!component.service.ref?.methods.find(m => m.name === r.name)?.parameters.some(param => param.name === p.attribute)) {
+                        accept('error', `Parameter '${p.attribute}' not found in method '${component.service.ref?.name}.${r.name}'.`, { node: p, property: 'attribute' });
                     }
                 });
             }

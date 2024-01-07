@@ -1,7 +1,7 @@
 // Monarch syntax highlighting for the jgen language.
 export default {
     keywords: [
-        'artifact','attribute','buildTool','configuration','controller','database','datasource','description','entity','enum','for','from','group','host','is','Jar','javaVersion','literal','metadata','method','name','nullable','operation','package','packaging','parameter','path','port','primaryKey','project','query','relationship','repository','requestBody','requestParameter','required','route','server','service','springVersion','to','type','unique','value','War'
+        'artifact','attribute','buildTool','configuration','controller','database','datasource','description','entity','enum','from','group','host','is','Jar','javaVersion','literal','metadata','method','name','nullable','operation','package','packaging','parameter','path','port','primaryKey','project','query','relationship','repository','requestBody','requestParameter','required','responseType','route','server','service','springVersion','to','type','unique','value','War'
     ],
     operators: [
         '.','11','17','2.7.17','2.7.18','21','3.0.12','3.0.13','3.1.5','3.1.6','3.2.0','8'

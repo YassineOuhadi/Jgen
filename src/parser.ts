@@ -72,7 +72,6 @@ interface RepositoryNode {
 interface ServiceNode {
     id?: number;
     name: string;
-    entity: string;
     repository: string;
     methods: { method: MethodNode }[];
 }
@@ -87,7 +86,6 @@ interface ControllerNode {
     id?: number;
     name: string;
     path: string;
-    entity: string;
     service: string;
     routes: { route: RouteNode }[];
 }
@@ -549,7 +547,6 @@ export function parseJgenJson(dsl: string): JgenNode {
                 currentService = {
                     id: currentId++,
                     name: serviceName,
-                    entity: serviceEntity,
                     repository: '',
                     methods: [],
                 };
@@ -576,7 +573,6 @@ export function parseJgenJson(dsl: string): JgenNode {
                 id: currentId++,
                 name: controllerName,
                 path: '',
-                entity: controllerEntity,
                 service: '',
                 routes: [],
             };
@@ -718,7 +714,7 @@ export function parseJSONToJgenFormat(data: JgenNode): string {
     // Convert Services
     for (const serviceData of data.project.services) {
         const service = serviceData.service;
-        jgenString += `\tservice ${service.name} for ${service.entity}\n`;
+        jgenString += `\tservice ${service.name}\n`;
         jgenString += `\t\trepository ${service.repository}\n`;
         for (const method of service.methods) {
             const methodData = method.method;
@@ -734,7 +730,7 @@ export function parseJSONToJgenFormat(data: JgenNode): string {
     // Convert Controllers
     for (const controllerData of data.project.controllers) {
         const controller = controllerData.controller;
-        jgenString += `\tcontroller ${controller.name} for ${controller.entity}\n`;
+        jgenString += `\tcontroller ${controller.name}\n`;
         jgenString += `\t\tpath ${controller.path}\n`;
         jgenString += `\t\tservice ${controller.service}\n`;
         for (const route of controller.routes) {
@@ -899,7 +895,6 @@ function parseParameterNode(parameter: Parameter): QueryParameterNode {
 function parseServiceNode(service: Service): ServiceNode {
     return {
         name: service.name,
-        entity: service.entity.ref?.name || '',
         repository: service.repository.ref?.name || '',
         methods: service.methods.map((method) => ({
             method: parseMethodNode(method)
@@ -920,7 +915,6 @@ function parseControllerNode(controller: Controller): ControllerNode {
     return {
         name: controller.name,
         path: controller.path || '',
-        entity: controller.entity.ref?.name || '',
         service: controller.service.ref?.name || '',
         routes: controller.routes.map((route) => ({
             route: parseRouteNode(route)

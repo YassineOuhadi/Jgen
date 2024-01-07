@@ -48,38 +48,40 @@ grammar Jgen
 entry Project:
     'project' name=ID
     (structuralComponents+=StructuralComponent )*
-    configuration=Configuration ;
+    configuration=Configuration;
 
 Entity:
     'entity' name=ID
-    (attributes+=Attribute)+;
+    (attributes+=Attribute)*;
 
 Attribute:
-    'attribute' name=ID 'type' (enumType=[Enum] | type=DATATYPE) (nullable?='nullable')? (primaryKey?='primaryKey')?;
+    'attribute' name=ID 'type' (enumType=[Enum] | type=DATATYPE) (nullable?='nullable')? (unique?='unique')? (primaryKey?='primaryKey')?;
 
 StructuralComponent:
     Enum | Entity | Relationship | Repository | Controller | Service;
 
 Repository:
-    'repository' name=ID 'for' entity=[Entity:ID]
-    (queries+=Query)*;
+    'repository' name=ID
+        'entity' entity=[Entity:ID]
+        (queries+=Query)*;
 
 Service:
-    'service' name=ID 'for' entity=[Entity:ID] 
-        'repository' repository=[Repository:ID] &
-        (methods+=Method)+;
+    'service' name=ID
+        'repository' repository=[Repository:ID]
+        (methods+=Method)*;
 
 Controller:
-    'controller' name=ID 'for' entity=[Entity:ID]
-        'path' name=PATH &
-        'service' service=[Service:ID] &
-        (routes+=Route)+;
+    'controller' name=ID
+        'path' path=PATH
+        'service' service=[Service:ID]
+        (routes+=Route)*;
 
 Route:
     'route' name=ID
         path=Path
         operation=Operation
-        (requestBody=RequestBody | (requestParameters+=RequestParameter)*);
+        (requestBody=RequestBody | (requestParameters+=RequestParameter)*)
+        responseType=ResponseType;
 
 Parameter:
     'parameter' name=ID 'is' attribute=ID (required?='required')?;
@@ -96,12 +98,15 @@ Path:
 Operation:
     'operation' name=OPERATION;
 
+ResponseType:
+     'responseType' (entity=[Entity:ID] | string=DATATYPE);
+
 Relationship:
     'relationship' type=RELATIONSHIP 'from' from=[Entity:ID] 'to' to=[Entity:ID];
 
 Method:
-    'method' name=ID (
-    (parameters+=Parameter)*)?;
+    'method' name=ID
+    (parameters+=Parameter)*;
 
 Query:
     'query' name=ID (
@@ -110,16 +115,16 @@ Query:
 
 Enum:
     'enum' name=ID
-    (literals+=Literal)+;
+    (literals+=Literal)*;
 
 Literal:
-    'literal' name=ID ('value' value=ID)?;
+    'literal' name=ID 'value' value=ID;
     
 Configuration:
     'configuration'
-        Metadata &
-        Datasource &
-        Server;
+        metadata = Metadata &
+        datasource = Datasource &
+        server = Server;
 
 Datasource:
     'datasource' 'type' type=DATABASE_TYPE 
@@ -239,64 +244,88 @@ Here is an example of our Jgen instance, the main idea is to generate code that 
 ```
 project Demo
 
-   enum Roles
-      literal ADMIN value admin
-      literal USER value user
+	enum Roles
+		literal ADMIN value admin
+		literal USER value user
 
-   entity User
-      attribute id type Long primaryKey
-      attribute username type String
-      attribute email type String
-      attribute role type Roles
+	entity User
+		attribute id type Long primaryKey
+		attribute fullname type String
+		attribute email type String
+		attribute role type Roles
 
-   entity Tweet
-      attribute id type Long primaryKey
-      attribute content type String
-      attribute tags type String nullable
+	entity Tweet
+		attribute id type Long primaryKey
+		attribute content type String
+		attribute tags type String nullable
 
-   relationship OneToMany from User to Tweet
+	relationship OneToMany from User to Tweet
 
-   repository userRepository for User
-        query getUserByEmail
-            type SELECT
-            parameter email is email
+	relationship ManyToOne from Tweet to User
 
-   service userService for User
-        repository userRepository
-        method getUserByEmail
-            parameter email is email
+	repository userRepository
+	    entity User
+		query getUserByEmail
+			type SELECT
+			parameter email is email required
 
-   controller userController for User
-        path /user
-        service userService
-        route getUserByEmail
-            path /get
-            operation GET
-            requestParameter userEmail is email required
+	repository tweetRepository
+	    entity Tweet
+		query newTweet
+			type INSERT
+			parameter content is content required
+			parameter tags is tags
 
-    configuration
-      metadata
-         buildTool Maven
-         springVersion 3.1.6
-         group com.example
-         artifact demo
-         name demo
-         description "Demo project for Spring Boot"
-         package com.example.demo
-         packaging Jar
-         javaVersion 17
-      
-      datasource
-        type MySQL
-        host localhost
-        port 3306
-        database mydb
-      
-      server
-        host localhost
-        port 9090
-		
-		
+	service userService
+		repository userRepository
+		method getUserByEmail
+			parameter email is email required
+
+    service tweetService
+		repository tweetRepository
+		method newTweet
+			parameter content is content required
+			parameter tags is tags
+
+	controller userController
+		path /user
+		service userService
+		route getUserByEmail
+			path /get
+			operation GET
+			requestParameter userEmail is email required
+			responseType User
+
+    controller tweetController
+		path /tweet
+		service tweetService
+		route newTweet
+			path /get
+			operation POST
+			requestBody
+			    parameter content is content required
+			    parameter tags is tags
+			responseType String
+			
+	configuration
+		metadata
+			buildTool Maven
+			springVersion 3.1.6
+			group com.example
+			artifact demo
+			name demo
+			description "Demo project for Spring Boot"
+			package com.example.demo
+			packaging Jar
+			javaVersion 17
+		datasource
+			type MySQL
+			host localhost
+			port 3306
+			database jgen
+		server
+			host localhost
+			port 9090		
 ```
 
 > If you don't use Monaco Editor or the extension's runtime window, you can validate your Jgen code using the Command Line Interface (CLI). Refer to the instructions at the top to learn how to do this.
@@ -311,7 +340,7 @@ This is the corresponding tree view for our Jgen instance. You can use it to cre
 
 This is the web editor integrated with the same functionalities as our extension runtime, thanks to the use of LSP and Monaco. It allows us to create Jgen code directly on a website, which is extremely convenient, especially for code generation. Here is an example of our Jgen instance.
 
-![monacoeditor](https://github.com/YassineOuhadi/Jgen/assets/109771302/102fcf7f-b80c-465e-b349-7c911388a0b2)
+![jgen web editor](https://github.com/YassineOuhadi/Jgen/assets/109771302/213436a4-5dae-4c76-b0e3-7231a5d2eac0)
 
 ### Code generation using CLI
 
@@ -356,6 +385,10 @@ The generated code for our instance is as follows:
 
 ## Supervisor
 
-M. MAHMOUD EL HAMLAOUI
+[M. MAHMOUD EL HAMLAOUI](https://github.com/ELHAMLAOUI)
+
+## Report
+
+[Project report](https://www.overleaf.com/read/vrphcpmjbhkk#2fca3f)
   
 ## License
