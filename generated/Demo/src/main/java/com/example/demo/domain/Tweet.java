@@ -18,8 +18,8 @@ public class Tweet {
 
     // Relationships
     
-	@OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL)
-	private List<User> users;
+	@ManyToOne(fetch = FetchType.LAZY)
+	private User user;
 
     // Add getters and setters here
 }
