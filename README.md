@@ -281,7 +281,7 @@ project Demo
 		method getUserByEmail
 			parameter email is email required
 
-    service tweetService
+        service tweetService
 		repository tweetRepository
 		method newTweet
 			parameter content is content required
@@ -296,7 +296,7 @@ project Demo
 			requestParameter userEmail is email required
 			responseType User
 
-    controller tweetController
+	controller tweetController
 		path /tweet
 		service tweetService
 		route newTweet
