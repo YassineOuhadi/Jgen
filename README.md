@@ -348,7 +348,7 @@ For the code generation of our Jgen instance using the CLI, as indicated in the 
 
 The generated code for our instance is as follows:
 
-![jgen codegenrated](https://github.com/YassineOuhadi/Jgen/assets/109771302/7e6b687d-3224-4d1d-8b96-fd532d41c833)
+![jgen code generated](https://github.com/YassineOuhadi/Jgen/assets/109771302/acb99b46-efb9-443a-8546-4eaa04743f3f)
 
 ### Code generation in the Web
 
