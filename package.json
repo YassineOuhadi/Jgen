@@ -239,7 +239,7 @@
     "chalk": "^4.1.2",
     "chevrotain": "^10.4.1",
     "commander": "^8.0.0",
-    "express": "~4.18.2",
+    "express": "^4.21.1",
     "jsonc-parser": "^3.2.0",
     "langium": "~1.0.0",
     "monaco-editor-workers": "~0.34.2",
