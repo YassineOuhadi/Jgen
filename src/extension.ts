@@ -30,68 +30,62 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// select file button
 	context.subscriptions.push(
-		vscode.commands.registerCommand("mySelectFileButtonCommand", () => {
-			vscode.window
-				.showOpenDialog({
-					canSelectMany: false,
-					openLabel: "Select",
-					filters: {
-						// eslint-disable-next-line @typescript-eslint/naming-convention
-						"Jgen files": ["*"]
-						//"Model files": ["*.model"]
-					},
-				})
-				.then((fileUri) => {
-					if (fileUri) {
-						// you can use the path of the selected file to read its content
-						let filePath = fileUri[0].fsPath;
-
-						// Parse the JSON file and create the tree view nodes
-						const workspaceRoot =
-							vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-						if (!workspaceRoot) {
-							console.log("ERROR: workspaceRoot is undefined");
-							return [];
+		vscode.commands.registerCommand("mySelectFileButtonCommand", async () => {
+			// Check if a workspace is open
+			if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+				vscode.window
+					.showErrorMessage("No workspace folder open. Please open a folder to continue.", "Open Folder")
+					.then((selection) => {
+						if (selection === "Open Folder") {
+							vscode.commands.executeCommand("workbench.action.files.openFolder");
 						}
-						const filename = "\\test.jgen";
+					});
+				return;
+			}
 
-						/*const selectedFile = await vscode.window.showOpenDialog({
-							canSelectMany: false,
-							filters: {
-							'Model files': ['model']
-							}
-						}); */
+			// Show file picker
+			const fileUri = await vscode.window.showOpenDialog({
+				canSelectMany: false,
+				openLabel: "Select",
+				filters: {
+					"Jgen files": ["*"]
+				}
+			});
 
-						// eslint-disable-next-line eqeqeq
-						if (filePath == undefined) {
-							filePath = workspaceRoot + filename;
-						}
+			if (!fileUri || fileUri.length === 0) {
+				vscode.window.showWarningMessage("No file selected.");
+				return;
+			}
 
-						file = filePath;
-						// Open the newly created file in VS Code
-						vscode.workspace.openTextDocument(filePath).then(doc => {
-							vscode.window.showTextDocument(doc);
-						});
+			const filePath = fileUri[0].fsPath;
+			file = filePath;
 
-						context.subscriptions.splice(context.subscriptions.indexOf(mytreeView), 1);
-						extensionContext = context;
-						model = convertJsonToEcoreModel(file);
+			// Open the selected file
+			const doc = await vscode.workspace.openTextDocument(filePath);
+			await vscode.window.showTextDocument(doc);
 
-						ecoreTreeDataProvider = new TreeDataProvider(model);
+			// Optional: remove old tree view if it exists
+			if (typeof mytreeView !== "undefined") {
+				const index = context.subscriptions.indexOf(mytreeView);
+				if (index !== -1) {
+					context.subscriptions.splice(index, 1);
+				}
+			}
 
-						vscode.commands.registerCommand('JGEN.refreshEntry', () => {
-							// Refresh the tree view
-							refreshTreeView();
-						});
+			// Continue initialization
+			extensionContext = context;
+			model = convertJsonToEcoreModel(file);
+			ecoreTreeDataProvider = new TreeDataProvider(model);
 
-						vscode.window.registerTreeDataProvider('jgenView', ecoreTreeDataProvider);
+			vscode.commands.registerCommand('JGEN.refreshEntry', () => {
+				refreshTreeView();
+			});
 
-						treeView = vscode.window.createTreeView('jgenView', { treeDataProvider: ecoreTreeDataProvider });
-						context.subscriptions.push(treeView);
+			vscode.window.registerTreeDataProvider('jgenView', ecoreTreeDataProvider);
+			treeView = vscode.window.createTreeView('jgenView', { treeDataProvider: ecoreTreeDataProvider });
+			context.subscriptions.push(treeView);
 
-						vscodeMDE(context);
-					} else { return []; }
-				});
+			vscodeMDE(context);
 		})
 	);
 

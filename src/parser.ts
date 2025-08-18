@@ -169,7 +169,7 @@ function extractDslLine(newLines: string[], line: string, keyword: string, keywo
 
     const commentIndex = line.indexOf('//');
     if (commentIndex > 0)
-        line = line.slice(0, commentIndex).trim();
+        {line = line.slice(0, commentIndex).trim();}
 
     let keywordsOccurrences = getKeywordsOccurrences(DslLine);
 
@@ -180,11 +180,11 @@ function extractDslLine(newLines: string[], line: string, keyword: string, keywo
 
             let index;
             if (keyword !== '' && keyword === keywordInLine)
-                index = line.indexOf(keyword, keywordOcc);
+                {index = line.indexOf(keyword, keywordOcc);}
             else if (keyword !== '')
-                index = line.indexOf(keyword);
+                {index = line.indexOf(keyword);}
             else
-                index = line.indexOf(keywordInLine);
+                {index = line.indexOf(keywordInLine);}
 
             if (index >= 0) {
 
@@ -193,7 +193,7 @@ function extractDslLine(newLines: string[], line: string, keyword: string, keywo
                 newLines.push(beforeKeyword.trim().replace(/\s+/g, ' '));
 
                 if (Object.values(getKeywordsOccurrences(afterKeyword)).reduce((a, b) => a + b, 0) === 1)
-                    newLines.push(afterKeyword.trim().replace(/\s+/g, ' '));
+                    {newLines.push(afterKeyword.trim().replace(/\s+/g, ' '));}
 
                 else if (Object.values(getKeywordsOccurrences(afterKeyword)).reduce((a, b) => a + b, 0) > 1 && index > 0) {
                     keywordOcc++;
@@ -205,10 +205,10 @@ function extractDslLine(newLines: string[], line: string, keyword: string, keywo
             }
 
             else if ((keyword !== '' && keywordOcc === keywordsOccurrences[keyword]) || (Object.values(keywordsOccurrences).reduce((a, b) => a + b, 0) === 1))
-                newLines.push(line.trim().replace(/\s+/g, ' '));
+                {newLines.push(line.trim().replace(/\s+/g, ' '));}
         }
 
-    } else newLines.push(line.trim().replace(/\s+/g, ' '));
+    } else {newLines.push(line.trim().replace(/\s+/g, ' '));}
 }
 
 function cleaningDslFormat(dsl: string): string {
@@ -238,7 +238,7 @@ function extractAttribute(s: string[], i: number): AttributeNode {
         primaryKey: false,
         nullable: false,
     };
-    if (s[i + 3] === 'primaryKey' || s[i + 4] === 'primaryKey') { attribute.primaryKey = true };
+    if (s[i + 3] === 'primaryKey' || s[i + 4] === 'primaryKey') { attribute.primaryKey = true; };
     if (s[i + 3] === 'nullable' || s[i + 4] === 'nullable') { attribute.nullable = true; }
     return attribute;
 }
@@ -410,8 +410,8 @@ export function parseJgenJson(dsl: string): JgenNode {
             if (entityParts.length > 1) {
                 for (let i = 2; i < entityParts.length; i += 4) {
                     const attribute: AttributeNode = extractAttribute(entityParts, i);
-                    if (attribute.primaryKey) i++;
-                    if (attribute.nullable) i++;
+                    if (attribute.primaryKey) {i++;}
+                    if (attribute.nullable) {i++;}
                     currentEntity.attributes.push({ attribute });
                 }
             }
@@ -872,7 +872,7 @@ function parseRepositoryNode(repository: Repository): RepositoryNode {
         queries: repository.queries.map((query) => ({
             query: parseQueryNode(query)
         }))
-    }
+    };
 }
 
 function parseQueryNode(query: Query): QueryNode {
@@ -882,14 +882,14 @@ function parseQueryNode(query: Query): QueryNode {
         parameters: query.parameters.map((parameter) => ({
             parameter: parseParameterNode(parameter)
         }))
-    }
+    };
 }
 
 function parseParameterNode(parameter: Parameter): QueryParameterNode {
     return {
         name: parameter.name || '',
         attribute: parameter.attribute || ''
-    }
+    };
 }
 
 function parseServiceNode(service: Service): ServiceNode {
@@ -899,7 +899,7 @@ function parseServiceNode(service: Service): ServiceNode {
         methods: service.methods.map((method) => ({
             method: parseMethodNode(method)
         }))
-    }
+    };
 }
 
 function parseMethodNode(method: Method): MethodNode {
@@ -908,7 +908,7 @@ function parseMethodNode(method: Method): MethodNode {
         parameters: method.parameters.map((parameter) => ({
             parameter: parseParameterNode(parameter)
         }))
-    }
+    };
 }
 
 function parseControllerNode(controller: Controller): ControllerNode {
@@ -919,7 +919,7 @@ function parseControllerNode(controller: Controller): ControllerNode {
         routes: controller.routes.map((route) => ({
             route: parseRouteNode(route)
         }))
-    }
+    };
 }
 
 function parseRouteNode(route: Route): RouteNode {
@@ -936,7 +936,7 @@ function parseRouteNode(route: Route): RouteNode {
             parameters: route.requestBody?.parameters?.map((parameter) => ({
                 parameter: parseParameterNode(parameter)
             }))!
-        }
+        };
     };
     return routeNode;
 }
@@ -946,7 +946,7 @@ function parseRequestParameterNode(parameter: RequestParameter): RequestParamete
         name: parameter.name || '',
         attribute: parameter.attribute || '',
         isRequired: parameter.required
-    }
+    };
 }
 
 function parseConfigurationNode(configuration: Configuration): ConfigurationNode {

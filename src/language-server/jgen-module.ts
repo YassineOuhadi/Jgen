@@ -12,13 +12,13 @@ export type JgenAddedServices = {
     validation: {
         JgenValidator: JgenValidator
     }
-}
+};
 
 /**
  * Union of Langium default services and your custom services - use this as constructor parameter
  * of custom service classes.
  */
-export type JgenServices = LangiumServices & JgenAddedServices
+export type JgenServices = LangiumServices & JgenAddedServices;
 
 /**
  * Dependency injection module that overrides Langium default services and contributes the
