@@ -65,7 +65,7 @@ function initializrProjectStructure(model: Project) {
 function generatePomXml(model: Project): void {
 
     if (model.configuration.metadata.tool !== "Maven" || model.configuration.metadata.packaging !== "Jar")
-        throw new Error('Gradle, War generation not implemented.');;
+        {throw new Error('Gradle, War generation not implemented.');};
 
     const pomXmlPath = path.join(projectPath, 'pom.xml');
     const pomNode = new CompositeGeneratorNode();
@@ -174,7 +174,7 @@ function initializrProjectResources(model: Project) {
 function generateApplicationProperties(model: Project): string {
 
     if (model.configuration.datasource.type !== "MySQL")
-        throw new Error(`${model.configuration.datasource.type} generation not implemented.`);;
+        {throw new Error(`${model.configuration.datasource.type} generation not implemented.`);};
 
     return `spring.datasource.url=jdbc:mysql://${model.configuration.datasource.host.name}:${model.configuration.datasource.port.name}/${model.configuration.datasource.database.name}
 spring.datasource.username=root
@@ -398,8 +398,8 @@ function getReturnType(entity: Entity, query: Query): string {
     let returnType;
     if (query.type === "SELECT") {
         if (query.parameters.filter(param => entity.attributes.find(attr => attr.name === param.attribute)?.primaryKey === true).length === 0)
-            returnType = `List<${entity.name}>`;
-        else returnType = entity.name;
+            {returnType = `List<${entity.name}>`;}
+        else {returnType = entity.name;}
     } else {
         returnType = 'void';
     }
@@ -423,13 +423,13 @@ function generateParameter(entity: Entity, parameter: Parameter | RequestParamet
     const attributeInfo = entity.attributes.find(attr => attr.name === attribute);
 
     if (!attributeInfo)
-        throw new Error(`Attribute '${attribute}' not found in entity '${entity.name}'`);
+        {throw new Error(`Attribute '${attribute}' not found in entity '${entity.name}'`);}
 
     const paramType = attributeInfo.enumType ? attributeInfo.enumType.ref?.name : attributeInfo.type;
     // const required = parameter.required ? '' : '?';
 
     if (isFromRepository !== undefined) {
-        if (isFromRepository === true) return `@Param("${attribute}") ${paramType} ${paramName}`;
+        if (isFromRepository === true) {return `@Param("${attribute}") ${paramType} ${paramName}`;}
         return `${paramType} ${paramName}`;
     }
     return `${paramName}`;
@@ -479,8 +479,8 @@ function generateServiceMethods(service: Service, methods: Array<Method>, isImpl
 
             let treatment;
             if (returnType === "void")
-                treatment = `${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p)).join(', ')});`;
-            else treatment = `return ${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p)).join(', ')});`;
+                {treatment = `${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p)).join(', ')});`;}
+            else {treatment = `return ${repositoryRef?.name.toLowerCase()}.${methodName}(${method.parameters.map(p => generateParameter(service.repository.ref?.entity.ref!, p)).join(', ')});`;}
 
             return `@Override
     public ${returnType} ${methodName}(${parameters}) {
@@ -606,7 +606,7 @@ function generateControllerRoute(controller: Controller, route: Route): string {
         const requestBodyParameters = requestBody.parameters.map(parameter => {
             const attributeInfo = entityRef?.attributes.find(attr => attr.name === parameter.attribute);
             if (!attributeInfo)
-                throw new Error(`Attribute '${parameter.attribute}' not found in entity '${entityRef?.name}'`);
+                {throw new Error(`Attribute '${parameter.attribute}' not found in entity '${entityRef?.name}'`);}
             const paramType = attributeInfo.enumType ? attributeInfo.enumType.ref?.name : attributeInfo.type;
             return `@RequestBody ${paramType} ${parameter.name}`;
         });
@@ -617,7 +617,7 @@ function generateControllerRoute(controller: Controller, route: Route): string {
     const requestParameterParameters = requestParameters.map(parameter => {
         const attributeInfo = entityRef?.attributes.find(attr => attr.name === parameter.attribute);
         if (!attributeInfo)
-            throw new Error(`Attribute '${parameter.attribute}' not found in entity '${entityRef?.name}'`);
+            {throw new Error(`Attribute '${parameter.attribute}' not found in entity '${entityRef?.name}'`);}
         const paramType = attributeInfo.enumType ? attributeInfo.enumType.ref?.name : attributeInfo.type;
         return `@RequestParam ${paramType} ${parameter.name}`;
     });
@@ -636,8 +636,8 @@ function generateControllerRoute(controller: Controller, route: Route): string {
     }
     
     if (returnType === "void")
-        treatment = `${serviceRef?.name.toLowerCase()}.${routeName}(${params});`;
-    else treatment = `return ${serviceRef?.name.toLowerCase()}.${routeName}(${params});`;
+        {treatment = `${serviceRef?.name.toLowerCase()}.${routeName}(${params});`;}
+    else {treatment = `return ${serviceRef?.name.toLowerCase()}.${routeName}(${params});`;}
 
 
     return `
